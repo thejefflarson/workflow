@@ -98,8 +98,10 @@ claude plugin validate .                # manifest/frontmatter schema check (als
 
 `tests/validate.sh` (bash + jq + grep, runs in CI) enforces the invariants above —
 structure, frontmatter, the `model:` tiers, the bare-name convention, and the load-bearing
-content lines. Behavioral checks (panel selection, merge discipline, tracker fallback) are
-manual and live in `TESTING.md`. When you add a skill, agent, or invariant, add its check.
+content lines. Behavioral checks run in a second layer — `tests/behavioral.sh` (opt-in,
+real `claude -p`) for panel selection, tracker fallback, and the `/deploy` gate; the
+residue (`/work` rehearsal, judgment quality) stays manual. See `TESTING.md` for the
+three-layer split. When you add a skill, agent, or invariant, add its check.
 
 Do **not** leave old copies of these skills/agents in `~/.claude/skills` or
 `~/.claude/agents`: user-level definitions override same-named plugin agents, so a leftover
