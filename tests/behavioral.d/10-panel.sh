@@ -103,7 +103,7 @@ EOF
 # choice in one line. Asking for a "Tracker:" prefix keeps that announcement
 # grep-able the same way the skill's own "Panel:" example already is. See
 # behavioral.sh's header for the two harness-prompt bugs this wording fixes.
-WF_PLAN_SPRINT_PROMPT='/plan-sprint -- behavioral-harness smoke run. Actually do steps 1 and 2: inspect this repo for real (README, manifests, .claude/tracker.json, CLAUDE.md, git remote -v) and resolve every open question yourself per your own autonomy principle -- never ask a clarifying question. When step 2 says to spawn the panel in parallel, stop there instead of calling any tool to do so, and do not create tickets or write files -- but you must still make and print the real decisions: emit exactly two lines, (1) your one-line tracker-resolution announcement prefixed "Tracker:" (state the actual resolved value, e.g. "docs/sprint-backlog.md" if no tracker is configured -- never guess a project name), (2) the "Panel: ..." line in the terse canonical format from step 2 of the skill (agent names joined by "+", then an em dash and a short reason) naming ONLY the agents you actually selected -- do not narrate or name any agent you considered and excluded. Always print both real lines, even though you will not fan out.'
+WF_PLAN_SPRINT_PROMPT='/workflow:plan-sprint -- behavioral-harness smoke run. Actually do steps 1 and 2: inspect this repo for real (README, manifests, .claude/tracker.json, CLAUDE.md, git remote -v) and resolve every open question yourself per your own autonomy principle -- never ask a clarifying question. When step 2 says to spawn the panel in parallel, stop there instead of calling any tool to do so, and do not create tickets or write files -- but you must still make and print the real decisions: emit exactly two lines, (1) your one-line tracker-resolution announcement prefixed "Tracker:" (state the actual resolved value, e.g. "docs/sprint-backlog.md" if no tracker is configured -- never guess a project name), (2) the "Panel: ..." line in the terse canonical format from step 2 of the skill (agent names joined by "+", then an em dash and a short reason) naming ONLY the agents you actually selected -- do not narrate or name any agent you considered and excluded. Always print both real lines, even though you will not fan out.'
 
 # Agent-name patterns tolerant of the abbreviations observed in spike runs (e.g.
 # "PM + Designer + Architect" as well as "product-manager, product-designer,
@@ -147,7 +147,7 @@ wf_panel_case() {
 
   local json
   if ! json=$(bl_claude_p "$WF_PLAN_SPRINT_PROMPT" "$dir"); then
-    fail "$name: claude -p /plan-sprint failed (after retry)"
+    fail "$name: claude -p /workflow:plan-sprint failed (after retry)"
     return 1
   fi
   bl_print_cost "$json"

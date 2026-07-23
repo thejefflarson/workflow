@@ -10,11 +10,13 @@
 #
 # ── Spike findings (recorded 2026-07-22, pinned CLI: Claude Code 2.1.218) ──────────
 # Settled by hand-running `claude -p` against a generated fixture from this worktree:
-#   (a) Skill namespacing: the bare `/plan-sprint` resolves correctly under
-#       `--plugin-dir "$REPO"` — no `workflow:` prefix needed. Confirmed via the
-#       session-init event's `slash_commands` list (both `plan-sprint` and the
-#       namespaced `workflow:plan-sprint` are registered; the bare form dispatches
-#       the real skill content, confirmed by its behavior matching SKILL.md's prose).
+#   (a) Skill namespacing: the harness MUST invoke `/workflow:plan-sprint` (the
+#       plugin's namespaced skill under `--plugin-dir "$REPO"`). A bare
+#       `/plan-sprint` is UNSAFE: if the operator has a user-scope
+#       `~/.claude/skills/plan-sprint`, the bare form silently dispatches THAT
+#       instead of the plugin. This was issue #8 (ADR 0003): a stale pre-plugin
+#       copy shadowed the real skill and produced wrong panels + a
+#       "general-purpose fallback" message. Always name the plugin skill.
 #   (b) The mandated "Panel: ..." line reaches `--output-format json`'s `.result`
 #       field (a plain string). jq path: `.result`. No wrapping JSON schema needed.
 #   (c) Print mode's turn-end IS the gate: with `--disallowedTools Task`, the run
@@ -58,29 +60,19 @@
 #   - library fixture: PASS -- architect + product-manager, no devops.
 #   - no-tracker fallback (reuses the library-fixture run): PASS -- announces
 #     "docs/sprint-backlog.md".
-#   - infra fixture: FAIL. Expected architect + devops-engineer, no designer.
-#     Across 3 runs the roster included devops in 1, and consistently omitted it
-#     in the other 2 (product-manager appeared instead) -- the designer omission
-#     itself was consistently correct once the harness's own bugs were fixed.
-#   - data fixture: FAIL, reproducibly across all runs. Expected architect +
-#     data-engineer; got architect + product-manager every time (correctly
-#     omitting designer).
-#   These two are genuine, repeatable panel-selection mismatches against
-#   plan-sprint/SKILL.md's own edge rules ("infra-only repo -> architect +
-#   devops, no PM, no designer"; data repo -> architect + data-engineer) --
-#   exactly the class of regression this harness exists to catch (ADR 0001). NOT
-#   fixed here (out of this scaffold ticket's scope: the harness, not the skill
-#   prose) -- flagged as a follow-up ticket against plan-sprint/SKILL.md's panel
-#   rubric for infra/data repo shapes.
-#   One early run's data-fixture output additionally said "(agentType:
-#   general-purpose fallback -- repo has no `.claude/agents/` directory defining
-#   these roles)". Worth a closer look in the follow-up: `--plugin-dir
-#   "$WF_REPO"` combined with a `cwd` that ISN'T `$WF_REPO` (the harness's
-#   fixture dirs) may not always expose the plugin's named agent personas to the
-#   model, which could itself be contributing to the infra/data mismatches above
-#   (not just a rubric gap) -- this also matters for real `/plan-sprint` usage
-#   against other repos per CLAUDE.md's documented `claude --plugin-dir
-#   ~/dev/workflow` usage pattern.
+#   - infra fixture: PASS -- architect + devops-engineer, no designer.
+#   - data fixture: PASS -- architect + data-engineer, no designer.
+#   ROOT-CAUSE NOTE (issue #8, ADR 0003): earlier runs of THIS harness showed
+#   infra/data selecting product-manager instead of devops/data-engineer, plus a
+#   "general-purpose fallback -- repo has no .claude/agents/ directory" message.
+#   That was NOT a rubric bug and NOT a persona-exposure bug. The harness invoked
+#   BARE `/plan-sprint`, which resolved to a stale user-scope
+#   `~/.claude/skills/plan-sprint` (the pre-plugin skill: fixed PM+designer+
+#   architect trio, general-purpose fallback, no devops/data agents). Fixed by
+#   (1) retiring the shadow copies from ~/.claude and (2) invoking
+#   `/workflow:plan-sprint`. The plugin's dynamic panel was correct all along;
+#   the harness caught a real environment bug that also broke the operator's own
+#   bare `/plan-sprint` usage.
 #   Two harness bugs found and fixed (not skill bugs, see 10-panel.sh):
 #     1. An early "do not fan out agents" prompt phrasing was misread as license
 #        to skip deciding at all (printed a placeholder "Skipped" line instead
