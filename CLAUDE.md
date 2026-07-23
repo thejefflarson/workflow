@@ -92,8 +92,14 @@ plugin:
 ```
 claude --plugin-dir ~/dev/workflow     # load this working copy as the `workflow` plugin
 /reload-plugins                         # pick up edits without a restart
-claude plugin validate .                # run before every commit/release — must pass clean
+./tests/validate.sh                     # deterministic checks — run before every commit
+claude plugin validate .                # manifest/frontmatter schema check (also inside validate.sh)
 ```
+
+`tests/validate.sh` (bash + jq + grep, runs in CI) enforces the invariants above —
+structure, frontmatter, the `model:` tiers, the bare-name convention, and the load-bearing
+content lines. Behavioral checks (panel selection, merge discipline, tracker fallback) are
+manual and live in `TESTING.md`. When you add a skill, agent, or invariant, add its check.
 
 Do **not** leave old copies of these skills/agents in `~/.claude/skills` or
 `~/.claude/agents`: user-level definitions override same-named plugin agents, so a leftover

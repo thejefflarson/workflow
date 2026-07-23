@@ -1,0 +1,20 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # jq, bash, and grep are preinstalled on ubuntu-latest — no setup needed.
+      - name: Deterministic plugin checks
+        run: ./tests/validate.sh
+
+# Deliberately NOT run here: anything needing a live tracker, real merges, tag
+# pushes, or paid LLM calls. CI proves the plugin is well-formed; the behavioral
+# checks in TESTING.md prove it behaves, and are run manually before a release.
+# `claude plugin validate` runs inside validate.sh when the CLI is present (it is
+# skipped in CI, exercised locally as the pre-commit ritual — see CLAUDE.md).
