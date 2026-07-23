@@ -62,8 +62,9 @@ manual self-review of the diff against the repo's security checklist.
 **Then run `/simplify` on your changed files** before you open the PR — apply its
 suggestions to cut needless complexity, duplication, and dead code *that you
 introduced*. Stay in scope: simplify only what your change touched; never refactor
-unrelated code. Re-run the gates after simplifying so the cleanup ships green. If
-`/simplify` isn't available in this repo, do the equivalent pass by hand and say so.
+unrelated code. Re-run the gates after simplifying so the cleanup ships green.
+(`/simplify` is a built-in Claude Code skill; if it reports as not invocable here — a
+subagent-context artifact, not a missing tool — do the equivalent pass by hand and say so.)
 
 ## Step 5 — commit, push, open the PR (then STOP)
 

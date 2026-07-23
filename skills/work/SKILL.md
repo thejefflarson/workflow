@@ -51,7 +51,7 @@ Spawn one **`workflow:senior-engineer`** agent per ticket **in a single message*
 run concurrently. Each already carries `isolation: worktree` in its definition (they edit
 files in parallel and must not collide). Give each: the ticket id, the full body, and its
 branch name. Each implements, tests, runs the local gates, trims needless complexity it
-introduced (in scope only — via a `/simplify` skill if the repo has one, else by hand),
+introduced (in scope only — via the built-in `/simplify` skill, else by hand),
 pushes its branch, and opens a PR — returning a structured result (branch, PR#, status,
 tests, scope/risks, any `DECISION NEEDED`).
 

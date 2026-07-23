@@ -9,8 +9,8 @@ argument-hint: "[theme / goal — or blank for open-ended.  optional: -- panel: 
 Run a planning panel **tailored to this repo** and turn its output into tracker issues.
 You (the main loop) own all tracker I/O, the human approval gate, and the ADR writes;
 this plugin's agents (`workflow:architect`, `workflow:product-manager`,
-`workflow:product-designer`, `workflow:devops-engineer`) do the product / design /
-infra / feasibility thinking.
+`workflow:product-designer`, `workflow:devops-engineer`, `workflow:data-engineer`) do the
+product / design / infra / data / feasibility thinking.
 
 ## Operating principle — autonomy
 
