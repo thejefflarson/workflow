@@ -1,0 +1,27 @@
+{
+  "name": "workflow",
+  "description": "Plan → work → deploy for Claude Code: repo-tailored sprint planning, an autonomous build swarm, and a release-cutter. Bundles its soundcheck security dependency.",
+  "owner": {
+    "name": "Jeff Larson",
+    "url": "https://github.com/thejefflarson"
+  },
+  "plugins": [
+    {
+      "name": "workflow",
+      "description": "Plan → work → deploy: a repo-tailored sprint-planning panel, an autonomous build swarm, and a release-cutter.",
+      "source": {
+        "source": "github",
+        "repo": "thejefflarson/workflow"
+      }
+    },
+    {
+      "name": "soundcheck",
+      "description": "Security-review pipeline (threat-model → hotspot → audit → validate). Hard dependency of workflow's /work security pass.",
+      "source": {
+        "source": "github",
+        "repo": "thejefflarson/soundcheck",
+        "ref": "v1.17.0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "workflow",
+  "description": "Plan → work → deploy: a repo-tailored sprint-planning panel, an autonomous build swarm, and a release-cutter. Three slash commands for shipping software end to end.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jeff Larson"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/thejefflarson/workflow",
+  "keywords": ["sprint", "planning", "agents", "swarm", "deploy", "linear", "adr"],
+  "dependencies": ["soundcheck"]
+}
