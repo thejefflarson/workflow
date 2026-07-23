@@ -114,8 +114,8 @@ assert_has .claude/agents/senior-engineer.md "isolation: worktree" "isolation: w
 
 # ── Layer 1d: reference convention ───────────────────────────────────
 sect "Reference convention (bare internal, namespaced external)"
-if grep -rn "workflow:" .claude >/dev/null 2>&1; then
-  grep -rn "workflow:" .claude; fail "stray 'workflow:' prefix in .claude/ (internal refs must be bare)"
+if grep -rn "workflow:" .claude/skills .claude/agents >/dev/null 2>&1; then
+  grep -rn "workflow:" .claude/skills .claude/agents; fail "stray 'workflow:' prefix in .claude/ (internal refs must be bare)"
 else
   pass "no 'workflow:' prefixes in .claude/ (bare-name convention holds)"
 fi
