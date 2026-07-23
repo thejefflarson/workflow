@@ -1,15 +1,15 @@
 ---
 name: plan-sprint
-description: Plan a product sprint with a repo-tailored agent panel (architect always; PM / designer / devops chosen from the repo), then cut the resulting tickets into this repo's issue tracker. Use when the user says "/workflow:plan-sprint", "plan the next sprint", "what should we build next", or wants product improvements scoped into tracker issues. Surveys the existing backlog first to avoid duplicates; creates tickets only after the user approves the plan.
+description: Plan a product sprint with a repo-tailored agent panel (architect always; PM / designer / devops chosen from the repo), then cut the resulting tickets into this repo's issue tracker. Use when the user says "/plan-sprint", "plan the next sprint", "what should we build next", or wants product improvements scoped into tracker issues. Surveys the existing backlog first to avoid duplicates; creates tickets only after the user approves the plan.
 argument-hint: "[theme / goal — or blank for open-ended.  optional: -- panel: pm,designer,devops]"
 ---
 
-# /workflow:plan-sprint — repo-tailored panel → tracker tickets
+# /plan-sprint — repo-tailored panel → tracker tickets
 
 Run a planning panel **tailored to this repo** and turn its output into tracker issues.
 You (the main loop) own all tracker I/O, the human approval gate, and the ADR writes;
-this plugin's agents (`workflow:architect`, `workflow:product-manager`,
-`workflow:product-designer`, `workflow:devops-engineer`, `workflow:data-engineer`) do the
+this plugin's agents (`architect`, `product-manager`,
+`product-designer`, `devops-engineer`, `data-engineer`) do the
 product / design / infra / data / feasibility thinking.
 
 ## Operating principle — autonomy
@@ -37,7 +37,7 @@ after approval you write it up as an ADR (step 4), rather than blocking the plan
   user-facing product, a library/CLI, or infra/ops.
 - **Detect the release mechanism:** look for a semver-tag-triggered workflow under
   `.github/workflows/` (`on: push: tags:`), existing `git tag`s, or a `CHANGELOG`. Note
-  whether this repo releases via **tagged merge to main** (the mechanism `/workflow:deploy`
+  whether this repo releases via **tagged merge to main** (the mechanism `/deploy`
   expects) — you'll act on this in step 3.
 - **Survey the backlog** so the panel doesn't re-propose existing work: list the open
   (non-completed) issues in the resolved tracker; capture titles + states.
@@ -51,16 +51,16 @@ picks; there is no classifier agent. Cap the panel at **3 agents** to keep synth
 tractable, and always state the chosen panel in one line before fan-out
 (e.g. "Panel: architect + devops-engineer — infra repo, no UI").
 
-- **Always:** `workflow:architect` in PLAN mode — the feasibility gate for every repo.
+- **Always:** `architect` in PLAN mode — the feasibility gate for every repo.
 - **Then pick 1–2 more** from the roster using the step-1 signals:
-  - `workflow:product-manager` — the README describes a user-facing product/service;
+  - `product-manager` — the README describes a user-facing product/service;
     there's a customer, pricing, or competitive framing.
-  - `workflow:product-designer` — a front-end exists (`ui/`, `app/`, `web/`, a JS
+  - `product-designer` — a front-end exists (`ui/`, `app/`, `web/`, a JS
     framework in `package.json`, design tokens) or the work is user-visible surfaces.
-  - `workflow:devops-engineer` — the repo is primarily infra / ops / tooling: Terraform,
+  - `devops-engineer` — the repo is primarily infra / ops / tooling: Terraform,
     Helm/K8s manifests, Dockerfiles + registries, CI/CD-as-the-product, or a CLI/library
     with no UI.
-  - `workflow:data-engineer` — the repo is primarily data / analytics / ML: ETL/ELT
+  - `data-engineer` — the repo is primarily data / analytics / ML: ETL/ELT
     pipelines, a warehouse/lakehouse schema, dbt/Airflow/Spark/Dagster, feature/vector
     stores, or model training/serving code.
 - **Edge rules:** infra-only repo → architect + devops (no PM, no designer). Data/ML repo
@@ -89,9 +89,9 @@ anything the architect flagged as impossible under the repo's constraints and sa
 explicitly (these become "market against" notes, not tickets).
 
 **Release model:** sequence the sprint so it ends in a shippable, tagged release
-(`/workflow:deploy` cuts a semver tag onto main). **If step 1 found the repo does NOT
+(`/deploy` cuts a semver tag onto main). **If step 1 found the repo does NOT
 release via tagged merge to main**, add ONE optional suggested ticket to the plan —
-"Adopt tagged-merge-to-main releases (wires up `/workflow:deploy`)" — as a suggestion the
+"Adopt tagged-merge-to-main releases (wires up `/deploy`)" — as a suggestion the
 user can drop, never a silent assumption.
 
 ## 4. Approval gate → write ADRs → create tickets
@@ -109,7 +109,7 @@ After the user approves (they may edit/drop/reorder first):
 2. **Create the tickets** in the resolved tracker in dependency order, setting title,
    description, priority, labels, and blocked-by relations per the sequencing. File
    tickets with unmet dependencies in a backlog/blocked status and the unblocked ones in
-   the ready status so `/workflow:work` can pick them up. (No tracker → write
+   the ready status so `/work` can pick them up. (No tracker → write
    `docs/sprint-backlog.md` instead and say so.)
 
 Report back the recorded ADRs, the created ticket ids, and the recommended pickup order.

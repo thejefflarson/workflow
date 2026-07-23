@@ -1,10 +1,10 @@
 ---
 name: deploy
-description: Cut a release / ship merged work to prod for whatever repo you're in. Assumes the framework default — a tagged merge to main — but detects the repo's actual mechanism, computes the next version from conventional commits, verifies the branch + pipeline are healthy, then (after explicit human confirmation) triggers the release, watches it, and confirms the roll. Runs at the end of /workflow:work; also use for "/workflow:deploy", "cut a release", "ship it", "push to prod".
+description: Cut a release / ship merged work to prod for whatever repo you're in. Assumes the framework default — a tagged merge to main — but detects the repo's actual mechanism, computes the next version from conventional commits, verifies the branch + pipeline are healthy, then (after explicit human confirmation) triggers the release, watches it, and confirms the roll. Runs at the end of /work; also use for "/deploy", "cut a release", "ship it", "push to prod".
 argument-hint: "[explicit version e.g. v1.4.0  |  bump e.g. patch|minor|major  |  blank = auto from conventional commits]"
 ---
 
-# /workflow:deploy — cut a release and ship merged work
+# /deploy — cut a release and ship merged work
 
 Merging to the default branch does not necessarily deploy anything. This framework's
 **default assumption is a tagged merge to main** — a semver tag pushed to the default
@@ -34,7 +34,7 @@ triggering release automation. Confirm it first, then fall back to detection:
 State the mechanism you found in one line. If the repo ships some other way, **ship it
 that way** — the default is a preference, not a straitjacket. **If the repo has NO release
 mechanism at all**, propose adopting tagged-merge-to-main (tag → CI release job), note it
-for `/workflow:plan-sprint` to formalize, and **stop rather than guess** — deploying the
+for `/plan-sprint` to formalize, and **stop rather than guess** — deploying the
 wrong way is expensive and hard to undo.
 
 ## 2. Preflight

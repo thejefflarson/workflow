@@ -1,15 +1,15 @@
 ---
 name: work
-description: Autonomous build swarm. Pulls ready tickets from this repo's issue tracker, spins up a senior-engineer agent per ticket (each implementing in its own isolated git worktree — code + tests + PR), then an architect that reviews and merges them all in. Use when the user says "/workflow:work", "grab some tickets and ship them", "work the backlog", or wants the queue drained autonomously.
+description: Autonomous build swarm. Pulls ready tickets from this repo's issue tracker, spins up a senior-engineer agent per ticket (each implementing in its own isolated git worktree — code + tests + PR), then an architect that reviews and merges them all in. Use when the user says "/work", "grab some tickets and ship them", "work the backlog", or wants the queue drained autonomously.
 argument-hint: "[ticket ids e.g. JEF-12,JEF-15  |  a count e.g. 3  |  blank = top of the ready queue]"
 ---
 
-# /workflow:work — pull tickets → swarm of engineers → architect merges them in
+# /work — pull tickets → swarm of engineers → architect merges them in
 
 Drain this repo's ready queue: each ticket gets a senior engineer who implements it
 end-to-end in an isolated worktree and opens a PR; an architect then reviews and merges
 them all in. You (the main loop) orchestrate; this plugin's agents
-(`workflow:senior-engineer`, `workflow:architect`) do the work.
+(`senior-engineer`, `architect`) do the work.
 
 ## Operating principle — autonomy
 
@@ -47,7 +47,7 @@ and write the closing keyword in the PR.)
 
 ## 3. Fan out the engineers (parallel, worktree-isolated)
 
-Spawn one **`workflow:senior-engineer`** agent per ticket **in a single message** so they
+Spawn one **`senior-engineer`** agent per ticket **in a single message** so they
 run concurrently. Each already carries `isolation: worktree` in its definition (they edit
 files in parallel and must not collide). Give each: the ticket id, the full body, and its
 branch name. Each implements, tests, runs the local gates, trims needless complexity it
@@ -94,7 +94,7 @@ NOT evidence it's missing. Don't skip the pass on that basis; run it from the ma
 
 ## 4. Architect integrates and merges
 
-Once the engineers return, spawn one **`workflow:architect`** agent in INTEGRATE mode.
+Once the engineers return, spawn one **`architect`** agent in INTEGRATE mode.
 Pass it every PR number + the engineers' verbatim results. It reviews each PR,
 independently re-checks the repo's stated invariants/security surface, resolves any
 `DECISION NEEDED` (deciding + recording it — an ADR if the repo keeps them), orders merges
@@ -112,24 +112,24 @@ decisions/ADRs recorded, any HELD tickets needing follow-up, any required separa
 follow-ups, and any "this ticket/skill was under-specified" signals. Merged PRs
 auto-close their tickets; move any HELD ticket back to the ready status as appropriate.
 
-## 6. Ship it — hand off to `/workflow:deploy`
+## 6. Ship it — hand off to `/deploy`
 
 Merging to the default branch may deploy **nothing** (this framework assumes a repo
 ships on a **tagged merge to main** — a semver tag, not the merge itself). So after the
-report, **if any PR merged this run, invoke the `/workflow:deploy` skill** to release the
-newly-merged work. `/workflow:deploy` detects how the repo ships, computes the next
+report, **if any PR merged this run, invoke the `/deploy` skill** to release the
+newly-merged work. `/deploy` detects how the repo ships, computes the next
 version, shows what will ship, and **waits for the user's explicit go before triggering
 the release** (releases are outward-facing and often irreversible). If everything was
 HELD (nothing merged), skip it. Don't cut the release yourself here — that's
-`/workflow:deploy`'s job, gate and all.
+`/deploy`'s job, gate and all.
 
 ## Guardrails
 - High-agency skill: it writes code and merges to the default branch autonomously. The
   only merge path is a normal merge on green — never force past branch protection. The
-  deploy at the end (`/workflow:deploy`) is the sole human-gated step.
+  deploy at the end (`/deploy`) is the sole human-gated step.
 - Engineers stay in their ticket's scope; worktree isolation keeps parallel work from
   colliding.
 - Honor a "merge when CI is green" repo rule if one exists — the architect's gate is
   green + no invariant break; it does not re-litigate a clean, green PR.
 - Tickets that turn out to need a product/design decision (not an engineering one) are
-  noted for `/workflow:plan-sprint`, not forced through here.
+  noted for `/plan-sprint`, not forced through here.

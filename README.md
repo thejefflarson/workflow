@@ -4,24 +4,29 @@
 only the two decisions that matter.**
 
 Most AI coding tools help you write a function. `workflow` runs the loop *around* the code:
-it plans a sprint, builds the whole backlog in parallel, reviews and merges it, and cuts
-the release. It's opinionated so you don't have to configure it, and it keeps a human gate
-exactly where a wrong call is expensive — **what to build** and **when to ship** — and
-nowhere else.
+it thinks an idea through, plans a sprint, builds the whole backlog in parallel, reviews and
+merges it, and cuts the release. It's opinionated so you don't have to configure it, and it
+keeps a human gate exactly where a wrong call is expensive — **what to build** and **when to
+ship** — and nowhere else.
 
-Three commands:
+Four commands, one loop:
 
 ```
-/workflow:plan-sprint     what should we build next?  →  tickets + ADRs
-/workflow:work            build the backlog           →  merged PRs
-/workflow:deploy          ship it                     →  a tagged release
+/workflow:idea            think an idea all the way through  →  a solid brief
+/workflow:plan-sprint     scope it into a sprint             →  tickets + ADRs
+/workflow:work            build the backlog                  →  merged PRs
+/workflow:deploy          ship it                            →  a tagged release
 ```
 
 ## Why it's different
 
-- **The whole loop, not just codegen.** Planning, implementation, security review, merge,
-  and release are one continuous flow. `/workflow:work` even hands off to `/workflow:deploy`
-  when something merges.
+- **The whole loop, not just codegen.** Ideation, planning, implementation, security review,
+  merge, and release are one continuous flow. `/workflow:idea` hands its brief to
+  `/workflow:plan-sprint`; `/workflow:work` hands off to `/workflow:deploy` when something merges.
+- **The right model for each job — pay for depth only where it counts.** `/workflow:idea`
+  thinks on **fable** (deep 0→1 reasoning); the architect and the planning panel run on
+  **opus** (architecture and product judgment); the implementation swarm runs on **sonnet**
+  (fast, capable coding). Tokens go where the hard thinking is, not into every keystroke.
 - **A team tailored to *your* repo, not one generalist.** `plan-sprint` reads the repo and
   assembles the right panel: a Terraform repo gets a devops engineer, a dbt repo gets a data
   engineer, a web app gets a PM and a designer. Every agent learns *your* conventions,
@@ -36,10 +41,11 @@ Three commands:
   architectural decisions are written down as ADRs in the repo. Security review
   ([soundcheck](https://github.com/thejefflarson/soundcheck)) is built in, not optional.
 
-## The three commands
+## The four commands
 
 | Command | What it does |
 | --- | --- |
+| **`/workflow:idea`** `[idea]` | The front of the loop. Spins up a deep planning architect (on **fable**) that researches best practices, compares 2–3 real approaches, challenges the idea's assumptions, and recommends the simplest thing that works — then writes a decision-complete **brief** to `docs/ideas/` and hands it to `/workflow:plan-sprint`. Collaborative: it iterates with you before writing anything down. |
 | **`/workflow:plan-sprint`** `[theme]` | Assembles a repo-tailored planning panel — the architect always, plus 1–2 of product-manager / product-designer / devops-engineer / data-engineer chosen from what the repo actually is. Synthesizes a small, shippable sprint, records big decisions as **ADRs** in `docs/adr/`, and cuts the tickets into your tracker *after you approve*. |
 | **`/workflow:work`** `[ids \| N]` | The build swarm. Pulls ready tickets, runs one **senior-engineer** per ticket in an isolated git worktree (code + tests + PR), runs a **soundcheck** security pass over the combined diff, then an **architect** reviews every PR and merges the good ones in dependency order. Hands off to `/workflow:deploy` if anything merged. |
 | **`/workflow:deploy`** `[version \| bump]` | Cuts the release. Computes the next semver from your conventional commits, preflights the branch and pipeline, shows exactly what will ship — then triggers it **only on an explicit human "go."** Default mechanism is a tagged merge to `main`; it detects and honors whatever your repo actually does. |
@@ -74,14 +80,15 @@ straitjacket.
 
 ## The agents
 
-| Agent | Role | Used by |
-| --- | --- | --- |
-| `workflow:architect` | Feasibility + sequencing (PLAN); reviews & merges the swarm's PRs (INTEGRATE). Owns ADR decisions. | both |
-| `workflow:senior-engineer` | Implements one ticket end-to-end in an isolated worktree; opens a PR, never merges. | `/workflow:work` |
-| `workflow:product-manager` | Scopes user-facing product improvements into ticket drafts. | `/workflow:plan-sprint` |
-| `workflow:product-designer` | Works UX / states / copy / a11y for the PM's drafts. | `/workflow:plan-sprint` |
-| `workflow:devops-engineer` | Reliability / release-engineering / cost / toil drafts for infra repos. | `/workflow:plan-sprint` |
-| `workflow:data-engineer` | Data-quality / pipeline / schema / ML-lifecycle drafts for data & ML repos. | `/workflow:plan-sprint` |
+| Agent | Model | Role | Used by |
+| --- | --- | --- | --- |
+| `idea-architect` | fable | Deep 0→1 design spike: research, compare approaches, challenge assumptions, recommend the simplest build. | `/workflow:idea` |
+| `architect` | opus | Feasibility + sequencing (PLAN); reviews & merges the swarm's PRs (INTEGRATE). Owns ADR decisions. | plan-sprint, work |
+| `product-manager` | opus | Scopes user-facing product improvements into ticket drafts. | `/workflow:plan-sprint` |
+| `product-designer` | opus | Works UX / states / copy / a11y for the PM's drafts. | `/workflow:plan-sprint` |
+| `devops-engineer` | opus | Reliability / release-engineering / cost / toil drafts for infra repos. | `/workflow:plan-sprint` |
+| `data-engineer` | opus | Data-quality / pipeline / schema / ML-lifecycle drafts for data & ML repos. | `/workflow:plan-sprint` |
+| `senior-engineer` | sonnet | Implements one ticket end-to-end in an isolated worktree; opens a PR, never merges. | `/workflow:work` |
 
 Security review is intentionally **not** an agent here — soundcheck owns it.
 

@@ -8,5 +8,15 @@
   "license": "MIT",
   "repository": "https://github.com/thejefflarson/workflow",
   "keywords": ["sprint", "planning", "agents", "swarm", "deploy", "linear", "adr"],
-  "dependencies": ["soundcheck"]
+  "dependencies": ["soundcheck"],
+  "skills": "./.claude/skills",
+  "agents": [
+    "./.claude/agents/architect.md",
+    "./.claude/agents/data-engineer.md",
+    "./.claude/agents/devops-engineer.md",
+    "./.claude/agents/idea-architect.md",
+    "./.claude/agents/product-designer.md",
+    "./.claude/agents/product-manager.md",
+    "./.claude/agents/senior-engineer.md"
+  ]
 }
