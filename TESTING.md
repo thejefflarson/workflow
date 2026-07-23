@@ -71,13 +71,14 @@ Check status:
   --strict-mcp-config` so a live Linear MCP server can never leak in), asserts the
   announcement names the `docs/sprint-backlog.md` fallback. The **gh-enabled** tracker
   variant (announcing GitHub Issues via `gh`) is not automated — see the manual layer.
-- **#3 `/idea` dispatch** — **conditional.** Automated *if* `--output-format stream-json`
-  reliably surfaces a `Task` event with `subagent_type: idea-architect` even when `Task`
-  is disallowed (denied-tool observability); otherwise this check stays manual. Deciding
-  factor: whether that event is actually emitted on a real attempt — inconclusive as of
-  the initial spike, since no hand-run so far has driven the model into attempting `Task`
-  at all. Either way, brief *quality* (2–3 compared approaches + a recommendation) stays
-  manual — dispatch and quality are different questions.
+- **#3 `/idea` dispatch** — **manual** (decided; see [ADR 0004](docs/adr/0004-idea-dispatch-check-stays-manual.md)).
+  Investigated during implementation (#13): headless `Task`/`Agent` permission enforcement
+  is a *probabilistic classifier*, not a hard match on `--disallowedTools`. A blanket
+  `--disallowedTools Task` removes the tool entirely (nothing to observe); a subagent-scoped
+  deny made the attempt observable but let the real `idea-architect` run on fable ~60% of
+  the time (real spend). Since ADR 0001 forbids ever running an unblocked `Task` to make an
+  assertion pass, this check cannot be automated safely and stays manual. Brief *quality*
+  (2–3 compared approaches + a recommendation) was always a manual/judgment check regardless.
 - **#5 `/deploy` dry gate** — **automated.** Fixture: a git repo with a `v0.1.0` tag, a
   `feat:` commit, and a local bare repo as `origin`; `gh` disallowed. Hard assert: tags/refs
   unchanged after the run (the gate held — nothing irreversible fires before the human
