@@ -1,0 +1,51 @@
+name: behavioral
+
+# Opt-in only — see ADR 0002 (docs/adr/0002-behavioral-tests-opt-in-not-push-ci.md).
+# Never wired to push/pull_request: real `claude -p` calls cost real money. Trigger
+# manually from the Actions tab (or `gh workflow run behavioral`) once
+# ANTHROPIC_API_KEY is set as a repo/environment secret.
+on:
+  workflow_dispatch:
+
+# Least-privilege default: this job only checks out code and runs a local script — it
+# never needs to write to the repo or its PRs/issues.
+permissions:
+  contents: read
+
+jobs:
+  behavioral:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for ANTHROPIC_API_KEY secret
+        id: guard
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ANTHROPIC_API_KEY secret is not set — skipping behavioral checks (no-op, not a failure). Set the secret to enable this workflow."
+          else
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.has_key == 'true'
+        with:
+          node-version: 20
+
+      - name: Install pinned Claude Code CLI
+        if: steps.guard.outputs.has_key == 'true'
+        # Pinned to the version the spike in tests/behavioral.sh was recorded against
+        # (see its header). CLI flag drift, not model flake, is the maintenance risk —
+        # bump this deliberately alongside a re-run of the spike, never floated to latest.
+        run: npm install -g @anthropic-ai/claude-code@2.1.218
+
+      - name: Run behavioral checks
+        if: steps.guard.outputs.has_key == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        # Prints total_cost_usd per run (tests/behavioral.sh already surfaces it) so
+        # spend is visible in the job log.
+        run: ./tests/behavioral.sh
