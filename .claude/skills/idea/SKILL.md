@@ -52,11 +52,11 @@ simpler thing to build instead). Then work with them: if they disagree or add co
 re-run or refine with the architect until the plan is one they'd stake the sprint on. This
 back-and-forth *is* the value of the skill; don't rush to write-down.
 
-## 4. Write it down + hand off to `/plan-sprint`
+## 4. Write it down (automatic) + hand off to `/plan-sprint`
 
-Once the user is happy:
-- **Save the brief** to `docs/ideas/<slug>.md` (create `docs/ideas/` if absent) so it's
-  durable and `/plan-sprint` can read it as context.
+As soon as the brief is settled, **write it to `docs/ideas/<slug>.md` automatically**
+(create `docs/ideas/` if absent) — no separate confirmation for the write itself; the
+brief is a durable, low-risk artifact and capturing it is the whole point. Then:
 - **Record ADRs.** Any load-bearing decision the brief settles gets an ADR in `docs/adr/`
   (match the repo's existing format/numbering; create `docs/adr/0001-<slug>.md` if the
   repo keeps none yet). Big decisions live in the repo, not just a brief.
