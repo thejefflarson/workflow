@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "description": "Plan → work → deploy for Claude Code: repo-tailored sprint planning, an autonomous build swarm, and a release-cutter. Bundles its soundcheck security dependency.",
+  "description": "Idea → plan → work → deploy for Claude Code: think an idea through, plan a repo-tailored sprint, run an autonomous build swarm, and cut the release. Bundles its soundcheck security dependency.",
   "owner": {
     "name": "Jeff Larson",
     "url": "https://github.com/thejefflarson"
@@ -8,10 +8,11 @@
   "plugins": [
     {
       "name": "workflow",
-      "description": "Plan → work → deploy: a repo-tailored sprint-planning panel, an autonomous build swarm, and a release-cutter.",
+      "description": "Idea → plan → work → deploy: think an idea through, plan a repo-tailored sprint, an autonomous build swarm, and a release-cutter.",
       "source": {
         "source": "github",
-        "repo": "thejefflarson/workflow"
+        "repo": "thejefflarson/workflow",
+        "ref": "v0.1.0"
       }
     },
     {

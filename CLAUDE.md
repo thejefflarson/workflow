@@ -109,5 +109,13 @@ copy silently wins and the plugin's version never runs.
 
 ## Release
 
-Dogfood `/deploy`: merge to `main`, bump `version` in `.claude-plugin/plugin.json`, push a
-`vX.Y.Z` tag. Never move a published tag — cut a new version instead.
+Dogfood `/deploy`. **Before tagging, update the manifests so the marketplace serves
+accurate, versioned metadata** — this is easy to forget and ships a wrong listing:
+- Bump `version` in `.claude-plugin/plugin.json`.
+- Set the `workflow` entry's `source.ref` in `.claude-plugin/marketplace.json` to the new
+  `vX.Y.Z` tag (and bump the soundcheck `ref` if soundcheck cut a release).
+- Refresh `description` / `keywords` in **both** manifests if the command set changed.
+
+Then merge to `main` and push the `vX.Y.Z` tag **at that commit** — the git tag IS the
+release: the marketplace source `ref` resolves it and there is no separate build/publish
+pipeline. Never move a published tag — cut a new version instead.
