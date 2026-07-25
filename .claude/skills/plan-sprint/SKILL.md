@@ -114,6 +114,16 @@ After the user approves (they may edit/drop/reorder first):
 
 Report back the recorded ADRs, the created ticket ids, and the recommended pickup order.
 
+## 5. Auto-advance to `/work`
+
+Once the tickets exist (i.e. the user approved in step 4 and they've been created), the
+cycle continues automatically: **invoke `/work`** to build the ready tickets — no manual
+re-invoke needed. The human checkpoint for this phase was the step-4 approval; building the
+approved tickets is the natural next step, and `/work` runs its own soundcheck + green-only
+merge rails, then hands to `/deploy` (which keeps its release gate). Skip the handoff only
+if the user asked to stop at ticket creation, or if step 4 produced no tickets (e.g. no
+tracker → markdown backlog only).
+
 ## Guardrails
 - Creating tracker tickets is outward-facing and bulk — always gate behind the explicit
   approval in step 4; never auto-create from raw panel output.

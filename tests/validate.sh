@@ -142,12 +142,14 @@ assert_has "$wk" "soundcheck:security-review" "work: runs soundcheck"
 assert_has "$wk" "HELD" "work: Critical/High hold rule"
 assert_has "$wk" "--show-toplevel" "work: worktree hardening line"
 assert_has "$wk" "general-purpose" "work: stale-persona fallback"
+assert_has "$wk" "/deploy" "work: auto-advances to /deploy"
 
 # plan-sprint: tracker fallbacks, ADRs, all panelists named
 ps=.claude/skills/plan-sprint/SKILL.md
 assert_has "$ps" "tracker.json" "plan-sprint: tracker config"
 assert_has "$ps" "sprint-backlog.md" "plan-sprint: markdown-backlog fallback"
 assert_has "$ps" "docs/adr/" "plan-sprint: ADR write"
+assert_has "$ps" "/work" "plan-sprint: auto-advances to /work"
 for p in product-manager product-designer devops-engineer data-engineer; do
   assert_has "$ps" "$p" "plan-sprint: names $p"
 done

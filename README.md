@@ -5,9 +5,11 @@ only the two decisions that matter.**
 
 Most AI coding tools help you write a function. `workflow` runs the loop *around* the code:
 it thinks an idea through, plans a sprint, builds the whole backlog in parallel, reviews and
-merges it, and cuts the release. It's opinionated so you don't have to configure it, and it
-keeps a human gate exactly where a wrong call is expensive — **what to build** and **when to
-ship** — and nowhere else.
+merges it, and cuts the release. The four phases **auto-advance into one cycle** — a single
+`/idea` (or `/plan-sprint`) flows all the way through to a release without you re-invoking
+anything. It's opinionated so you don't have to configure it, and it pauses for a human at
+exactly the two places a wrong call is expensive — **what to build** and **when to ship** —
+and nowhere else.
 
 Four commands, one loop:
 
@@ -20,9 +22,10 @@ Four commands, one loop:
 
 ## Why it's different
 
-- **The whole loop, not just codegen.** Ideation, planning, implementation, security review,
-  merge, and release are one continuous flow. `/workflow:idea` hands its brief to
-  `/workflow:plan-sprint`; `/workflow:work` hands off to `/workflow:deploy` when something merges.
+- **The whole loop, not just codegen — and it auto-advances.** Ideation, planning,
+  implementation, security review, merge, and release are one continuous flow that runs
+  itself: `/workflow:idea` invokes `/workflow:plan-sprint`, which invokes `/workflow:work`,
+  which invokes `/workflow:deploy`. You start it once; it stops only at the two gates.
 - **The right model for each job — pay for depth only where it counts.** `/workflow:idea`
   thinks on **fable** (deep 0→1 reasoning); the architect and the planning panel run on
   **opus** (architecture and product judgment); the implementation swarm runs on **sonnet**

@@ -60,9 +60,12 @@ brief is a durable, low-risk artifact and capturing it is the whole point. Then:
 - **Record ADRs.** Any load-bearing decision the brief settles gets an ADR in `docs/adr/`
   (match the repo's existing format/numbering; create `docs/adr/0001-<slug>.md` if the
   repo keeps none yet). Big decisions live in the repo, not just a brief.
-- **Offer the handoff:** ask whether to run `/plan-sprint` now with the brief's
-  `HANDOFF TO PLAN-SPRINT` framing as the theme. If yes, invoke it; if not, tell the user
-  the brief is saved and `/plan-sprint <theme>` will pick it up later.
+- **Auto-advance to `/plan-sprint`:** once the brief is settled, invoke `/plan-sprint`
+  automatically with the brief's `HANDOFF TO PLAN-SPRINT` framing as the theme — the cycle
+  flows on into ticketing without a manual re-invoke. It still stops at `/plan-sprint`'s
+  own approval gate before any tickets are created, so this handoff commits to nothing
+  outward. Skip the handoff only if the user scoped the run to the brief alone ("just the
+  brief", "don't build this yet") or the brief's conclusion is "don't build it."
 
 ## Guardrails
 - `/idea` produces a **brief and ADRs — no tickets, no code.** Ticketing is `/plan-sprint`;

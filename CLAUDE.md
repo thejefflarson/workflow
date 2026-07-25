@@ -8,10 +8,16 @@ here — there is no build step and no runtime beyond Claude Code itself.
 
 Four slash commands — one continuous loop that ships software end to end:
 - `/idea` — a rough idea → a decision-complete design brief (deep planning architect on
-  fable) → hands off to plan-sprint. Collaborative, not autonomous.
-- `/plan-sprint` — a repo-tailored planning panel → tracker tickets + ADRs.
-- `/work` — an autonomous build swarm (senior-engineers → soundcheck → architect merges).
+  fable) → auto-advances to plan-sprint. Collaborative on the brief; then hands off.
+- `/plan-sprint` — a repo-tailored planning panel → tracker tickets + ADRs → auto-advances to work.
+- `/work` — an autonomous build swarm (senior-engineers → soundcheck → architect merges) → auto-advances to deploy.
 - `/deploy` — cut a release (default assumption: a **tagged merge to `main`**).
+
+**The phases auto-advance into one cycle** — each invokes the next, so a single `/idea`
+(or `/plan-sprint`) flows through to release without manual re-invocation. **Two human
+gates remain**, at exactly the two outward-facing/irreversible decisions: `/plan-sprint`
+confirms the plan *before* creating tickets, and `/deploy` confirms *before* pushing the
+release tag. Everything between those gates runs autonomously.
 
 (Installed, these are `/workflow:<name>`. In-repo they load project-scoped as `/<name>` —
 see the reference-convention invariant below.)
@@ -67,6 +73,13 @@ use the override).
   default is a preference, the detection is the safety net.
 - **The merge path is a normal merge on green.** The architect never uses `--admin` or
   bypasses branch protection. Engineers open PRs and STOP — they never self-merge.
+- **Auto-advancing cycle, two human gates.** The four phases chain automatically (`/idea`
+  invokes `/plan-sprint`, `/plan-sprint` invokes `/work`, `/work` invokes `/deploy`), but
+  the two gates on outward-facing/irreversible actions **must stay**: `/plan-sprint`
+  confirms before creating tickets, `/deploy` confirms before pushing the tag. Adding the
+  auto-advance handoffs is fine; removing either gate is not — the safety of the autonomous
+  span between them (soundcheck pass, green-only merge, deploy preflights) presupposes a
+  human said "build this" and "ship this."
 
 ## Editing conventions
 
@@ -81,7 +94,9 @@ use the override).
   If you add a panelist: match that output format, add it to the panel rubric AND the intro
   agent list in `.claude/skills/plan-sprint/SKILL.md`, and add its file to `plugin.json`.
 - Stage separation: `/idea` produces a brief + ADRs (no tickets); `/plan-sprint` produces
-  tickets (no code); `/work` writes code + merges; `/deploy` releases. Don't blur them.
+  tickets (no code); `/work` writes code + merges; `/deploy` releases. They auto-advance
+  (each ends by invoking the next) but stay distinct stages — don't blur their bodies, and
+  keep the two gates (see the auto-advancing-cycle invariant above).
 
 ## Develop & validate
 
