@@ -1,7 +1,7 @@
 {
   "name": "workflow",
   "description": "Idea → plan → work → deploy: think an idea through with a fable architect, plan a repo-tailored sprint, run an autonomous build swarm, and cut the release. Four slash commands for shipping software end to end.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": {
     "name": "Jeff Larson"
   },
