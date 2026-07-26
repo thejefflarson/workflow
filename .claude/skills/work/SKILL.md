@@ -1,6 +1,6 @@
 ---
 name: work
-description: Autonomous build swarm. Pulls ready tickets from this repo's issue tracker, spins up a senior-engineer agent per ticket (each implementing in its own isolated git worktree — code + tests + PR), then an architect that reviews and merges them all in. Use when the user says "/work", "grab some tickets and ship them", "work the backlog", or wants the queue drained autonomously.
+description: Autonomous build swarm. Pulls ready and backlog tickets from this repo's issue tracker (skipping only in-progress/done and unmet-dependency ones), spins up a senior-engineer agent per ticket (each implementing in its own isolated git worktree — code + tests + PR), then an architect that reviews and merges them all in. Use when the user says "/work", "grab some tickets and ship them", "work the backlog", or wants the queue drained autonomously.
 argument-hint: "[ticket ids e.g. JEF-12,JEF-15  |  a count e.g. 3  |  blank = top of the ready queue]"
 ---
 
@@ -29,14 +29,20 @@ Determine the issue tracker and which project/team to pull from, in this order:
 3. Otherwise infer: list the tracker's teams/projects (e.g. Linear MCP) and pick the one
    matching this repo's name/product; **state your choice** in one line and proceed.
 4. If there is no Linear/tracker MCP, fall back to **GitHub Issues via `gh`** (the repo
-   already uses `gh` for PRs): the ready queue is open issues with a ready label/milestone.
+   already uses `gh` for PRs): the queue is the open issues — a `ready`/`Todo` label is a
+   hint for ordering, **not** a filter; include unlabeled backlog issues too.
 
-**Ready queue** = issues in the resolved project with a ready/unstarted status (e.g.
-"Todo"), ordered by priority (Urgent → High → Medium → Low). Skip anything already In
-Progress / In Review / Done, and skip pure-spec tickets with no code to write (note
-them). For each picked ticket fetch the **full** body (acceptance criteria + branch
-name) to hand to its engineer. List the selected tickets (id · title · priority) one
-line each, then proceed (no approval prompt).
+**Work queue** = the ready tickets **plus the backlog** — every open, unstarted issue in
+the resolved project. A ready/`Todo` status is *preferred* but **not required**: a plain
+backlog/untriaged issue counts, so `/work` drains more than just what was explicitly
+marked ready. Order by priority (Urgent → High → Medium → Low), and within a priority
+prefer ready-status over backlog. **Skip:** anything already In Progress / In Review /
+Done; pure-spec tickets with no code to write (note them); and — the load-bearing one —
+any ticket with an **unmet `blocked-by` dependency** (a blocker not yet merged/closed).
+Those wait for a later run; pulling the backlog must not mean building something whose
+prerequisites don't exist yet. For each picked ticket fetch the **full** body (acceptance
+criteria + branch name) to hand to its engineer. List the selected tickets (id · title ·
+priority · ready|backlog) one line each, then proceed (no approval prompt).
 
 ## 2. Mark them In Progress
 
