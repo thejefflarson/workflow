@@ -118,6 +118,26 @@ decisions/ADRs recorded, any HELD tickets needing follow-up, any required separa
 follow-ups, and any "this ticket/skill was under-specified" signals. Merged PRs
 auto-close their tickets; move any HELD ticket back to the ready status as appropriate.
 
+## 5.5. Prune the swarm's worktrees (reclaim disk)
+
+Each engineer built in its own `.claude/worktrees/<agent-*>` checkout — a **full working
+copy of the repo**. Left behind, they pile up and fill the disk. Once the architect has
+finished (merged, or held with the branch pushed to the remote where it safely lives), the
+local worktrees are **disposable** — the code is in git and on origin. Clean them up from
+the MAIN checkout (never from inside a worktree):
+
+- `git worktree list` — identify the `.claude/worktrees/*` entries.
+- For each, `git worktree remove --force <path>` (force: the checkout has committed and
+  possibly untracked files), then `git worktree prune` to clear stale metadata. Remove the
+  `.claude/worktrees/` dir if it's now empty.
+- Delete the leftover worktree branches the harness creates: `git branch` shows
+  `worktree-agent-*` (and any merged ticket branches) — `git branch -D` each. The **remote**
+  branches auto-delete on squash-merge; these are just local refs.
+
+Never touch the **main** checkout's branch, and don't remove a worktree whose PR you are
+still actively reviewing this run. This step is the fix for worktrees accumulating across
+`/work` runs and exhausting disk.
+
 ## 6. Ship it — hand off to `/deploy`
 
 Merging to the default branch may deploy **nothing** (this framework assumes a repo

@@ -143,6 +143,7 @@ assert_has "$wk" "HELD" "work: Critical/High hold rule"
 assert_has "$wk" "--show-toplevel" "work: worktree hardening line"
 assert_has "$wk" "general-purpose" "work: stale-persona fallback"
 assert_has "$wk" "/deploy" "work: auto-advances to /deploy"
+assert_has "$wk" "git worktree remove" "work: prunes worktrees to reclaim disk"
 
 # plan-sprint: tracker fallbacks, ADRs, all panelists named
 ps=.claude/skills/plan-sprint/SKILL.md
