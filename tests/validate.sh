@@ -129,6 +129,7 @@ se=.claude/agents/senior-engineer.md
 assert_has "$se" "Do NOT merge" "engineer: do-not-merge rule"
 assert_has "$se" ".claude/worktrees/" "engineer: worktree guard"
 assert_has "$se" "git rev-parse --show-toplevel" "engineer: contamination check"
+assert_has "$se" "No external ticket numbers" "engineer: no ticket ids in code (cite ADRs)"
 
 # architect merge discipline
 ar=.claude/agents/architect.md
