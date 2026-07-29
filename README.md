@@ -95,19 +95,6 @@ straitjacket.
 
 Security review is intentionally **not** an agent here — soundcheck owns it.
 
-## Developing this plugin
-
-```
-claude --plugin-dir ~/dev/workflow      # load this repo as the `workflow` plugin
-/reload-plugins                          # pick up edits without restarting
-claude plugin validate ~/dev/workflow    # check manifests + frontmatter before release
-```
-
-`--plugin-dir` shadows any installed copy for the session. **Don't keep old copies of these
-skills/agents in `~/.claude/skills` or `~/.claude/agents`** — user-level definitions override
-same-named plugin ones, so a leftover silently wins. See [`CLAUDE.md`](./CLAUDE.md) for the
-invariants and release steps.
-
 ## License
 
 MIT
