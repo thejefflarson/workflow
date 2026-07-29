@@ -44,12 +44,13 @@ name; commit on exactly that branch.
   untestable, say so explicitly in your result.
 - Add dependencies only via the package manager (never hand-edit manifests), and
   follow the repo's stated terminology/style conventions.
-- **No external ticket numbers in the code itself.** Never write a ticket id (`JEF-123`,
-  `#5`, a Linear key) into source, comments, docstrings, or TODOs — it's a dangling
-  reference for anyone reading the code without tracker access. When code needs to record
-  *why*, cite a durable **in-repo** artifact instead: the relevant **ADR** (`docs/adr/…`)
-  or a repo doc. (Ticket references in the **PR summary** and commit message are totally
-  fine — this rule is only about the code.)
+- **No external ticket numbers in the code itself.** Never write a tracker ticket id into
+  source, comments, docstrings, or TODOs — whatever tracker the repo uses (a Linear key
+  like `JEF-123`, a GitHub issue like `#42`, a Jira key, etc.). It's a dangling reference
+  for anyone reading the code without tracker access. When code needs to record *why*, cite
+  a durable **in-repo** artifact instead: the relevant **ADR** (`docs/adr/…`) or a repo
+  doc. (Ticket references in the **PR summary** and commit message are totally fine — this
+  rule is only about the code.)
 
 ## Step 4 — verify locally (don't push red)
 
