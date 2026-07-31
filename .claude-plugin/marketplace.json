@@ -1,10 +1,11 @@
 {
   "name": "workflow",
-  "description": "Idea → plan → work → deploy for Claude Code: think an idea through, plan a repo-tailored sprint, run an autonomous build swarm, and cut the release. Bundles its soundcheck security dependency.",
+  "description": "Idea → plan → work → deploy for Claude Code: think an idea through, plan a repo-tailored sprint, run an autonomous build swarm, and cut the release. Depends on soundcheck (installed from its own marketplace).",
   "owner": {
     "name": "Jeff Larson",
     "url": "https://github.com/thejefflarson"
   },
+  "allowCrossMarketplaceDependenciesOn": ["soundcheck"],
   "plugins": [
     {
       "name": "workflow",
@@ -12,16 +13,7 @@
       "source": {
         "source": "github",
         "repo": "thejefflarson/workflow",
-        "ref": "v0.2.3"
-      }
-    },
-    {
-      "name": "soundcheck",
-      "description": "Security-review pipeline (threat-model → hotspot → audit → validate). Hard dependency of workflow's /work security pass.",
-      "source": {
-        "source": "github",
-        "repo": "thejefflarson/soundcheck",
-        "ref": "v1.17.0"
+        "ref": "v0.2.4"
       }
     }
   ]

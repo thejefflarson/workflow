@@ -55,15 +55,20 @@ Four commands, one loop:
 
 ## Install
 
+Workflow depends on **soundcheck** (the `/workflow:work` security pass), declared as a
+**cross-marketplace dependency** on soundcheck's own marketplace — so soundcheck updates
+independently of workflow. Add its marketplace first (Claude Code won't auto-add one it
+hasn't been told about), then install workflow:
+
 ```
+/plugin marketplace add thejefflarson/soundcheck
 /plugin marketplace add thejefflarson/workflow
 /plugin install workflow@workflow
 ```
 
-**Soundcheck installs automatically** — it's a declared dependency bundled in this plugin's
-marketplace, so the `/workflow:work` security pass always has it. (If you already run
-soundcheck from its own marketplace you'll have a harmless second copy under
-`soundcheck@workflow`.)
+soundcheck then resolves and installs automatically as the dependency. If you skip the
+first line, install leaves workflow disabled with a `dependency-unsatisfied` error — just
+add the soundcheck marketplace and it resolves.
 
 ### What you'll want alongside it
 

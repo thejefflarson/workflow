@@ -55,11 +55,16 @@ use the override).
   installed copy instead of your working tree. **External** dependencies keep their names:
   `/soundcheck:security-review`, `/soundcheck:pr-review`, `/simplify` (built-in). Grep for
   stray `workflow:` after any edit — there should be none in `.claude/`.
-- **Soundcheck is a hard dependency.** Declared in `plugin.json` `dependencies` and listed
-  in this repo's `marketplace.json` so it auto-installs (same-marketplace resolution),
-  pinned to a soundcheck release tag (`source.ref`). Bump that `ref` when soundcheck cuts a
-  new release. The `/work` security pass depends on it — don't reintroduce a "degrade to
-  manual review" path as the primary behavior.
+- **Soundcheck is a hard dependency — cross-marketplace.** Declared in `plugin.json`
+  `dependencies` as `{ "name": "soundcheck", "marketplace": "soundcheck" }`, permitted by
+  `allowCrossMarketplaceDependenciesOn: ["soundcheck"]` in this repo's `marketplace.json`.
+  It resolves from soundcheck's **own** marketplace, so it updates independently of workflow
+  — there's no bundled copy in our marketplace and **no `ref` to bump here**. Trade-off:
+  installers must `marketplace add thejefflarson/soundcheck` first (Claude Code won't
+  auto-add a marketplace), or the install is `dependency-unsatisfied`. The `/work` security
+  pass depends on it — don't reintroduce a "degrade to manual review" path as the primary
+  behavior, and don't re-bundle soundcheck into our marketplace (that reintroduces the
+  duplicate-copy problem).
 - **Right model per role (token economy is a feature).** Set `model:` in agent frontmatter:
   `idea-architect` → **fable** (deep 0→1 reasoning); `architect` + the four planning panel
   agents → **opus** (architecture / product judgment); `senior-engineer` → **sonnet** (fast
@@ -128,7 +133,8 @@ Dogfood `/deploy`. **Before tagging, update the manifests so the marketplace ser
 accurate, versioned metadata** — this is easy to forget and ships a wrong listing:
 - Bump `version` in `.claude-plugin/plugin.json`.
 - Set the `workflow` entry's `source.ref` in `.claude-plugin/marketplace.json` to the new
-  `vX.Y.Z` tag (and bump the soundcheck `ref` if soundcheck cut a release).
+  `vX.Y.Z` tag. (soundcheck is a cross-marketplace dependency now — it updates from its own
+  marketplace, so there's nothing soundcheck-related to bump here.)
 - Refresh `description` / `keywords` in **both** manifests if the command set changed.
 
 Then merge to `main` and push the `vX.Y.Z` tag **at that commit** — the git tag IS the

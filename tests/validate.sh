@@ -46,17 +46,16 @@ if have jq; then
   [ "$(jq -r '.name' .claude-plugin/plugin.json)" = "workflow" ] && pass "plugin name is workflow" || fail "plugin name != workflow"
   ver=$(jq -r '.version' .claude-plugin/plugin.json)
   echo "$ver" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' && pass "version is semver ($ver)" || fail "version not semver ($ver)"
-  jq -e '.dependencies | index("soundcheck")' .claude-plugin/plugin.json >/dev/null && pass "declares soundcheck dependency" || fail "missing soundcheck dependency"
-
-  # every dependency is listed in the marketplace (same-marketplace auto-install)
-  for dep in $(jq -r '.dependencies[]' .claude-plugin/plugin.json); do
-    jq -e --arg d "$dep" '.plugins[] | select(.name==$d)' .claude-plugin/marketplace.json >/dev/null \
-      && pass "dependency '$dep' is listed in marketplace.json" \
-      || fail "dependency '$dep' NOT in marketplace.json (won't auto-resolve)"
-  done
-  # soundcheck source pin must be present
-  ref=$(jq -r '.plugins[] | select(.name=="soundcheck") | .source.ref // ""' .claude-plugin/marketplace.json)
-  [ -n "$ref" ] && pass "soundcheck pinned to $ref" || fail "soundcheck source.ref is empty (should pin a release tag)"
+  # soundcheck is a CROSS-marketplace dependency on soundcheck's own marketplace,
+  # so it updates independently of workflow (no bundled copy, no ref to bump here).
+  jq -e '.dependencies[] | select(.name=="soundcheck")' .claude-plugin/plugin.json >/dev/null \
+    && pass "declares soundcheck dependency" || fail "missing soundcheck dependency"
+  [ "$(jq -r '.dependencies[] | select(.name=="soundcheck") | .marketplace // ""' .claude-plugin/plugin.json)" = "soundcheck" ] \
+    && pass "soundcheck dependency targets the 'soundcheck' marketplace (cross-marketplace)" \
+    || fail "soundcheck dependency should set marketplace: \"soundcheck\""
+  jq -e '.allowCrossMarketplaceDependenciesOn | index("soundcheck")' .claude-plugin/marketplace.json >/dev/null \
+    && pass "marketplace allows the cross-marketplace soundcheck dependency" \
+    || fail "marketplace.json missing allowCrossMarketplaceDependenciesOn: [\"soundcheck\"]"
 
   # component paths point under .claude/
   [ "$(jq -r '.skills' .claude-plugin/plugin.json)" = "./.claude/skills" ] && pass "skills path -> ./.claude/skills" || fail "skills path override wrong/missing"
