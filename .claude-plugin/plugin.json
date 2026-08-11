@@ -1,15 +1,27 @@
 {
   "name": "workflow",
-  "description": "Idea → plan → work → deploy: think an idea through with a fable architect, plan a repo-tailored sprint, run an autonomous build swarm, and cut the release. Four slash commands for shipping software end to end.",
-  "version": "0.2.5",
+  "description": "Idea \u2192 plan \u2192 work \u2192 deploy: think an idea through with a fable architect, plan a repo-tailored sprint, run an autonomous build swarm, and cut the release. Four slash commands for shipping software end to end.",
+  "version": "0.2.6",
   "author": {
     "name": "Jeff Larson"
   },
   "license": "MIT",
   "repository": "https://github.com/thejefflarson/workflow",
-  "keywords": ["idea", "sprint", "planning", "agents", "swarm", "deploy", "linear", "adr"],
+  "keywords": [
+    "idea",
+    "sprint",
+    "planning",
+    "agents",
+    "swarm",
+    "deploy",
+    "linear",
+    "adr"
+  ],
   "dependencies": [
-    { "name": "soundcheck", "marketplace": "soundcheck" }
+    {
+      "name": "soundcheck",
+      "marketplace": "soundcheck"
+    }
   ],
   "skills": "./.claude/skills",
   "agents": [

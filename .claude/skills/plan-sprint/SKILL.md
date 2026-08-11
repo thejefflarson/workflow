@@ -70,6 +70,12 @@ tractable, and always state the chosen panel in one line before fan-out
 - **Override:** honor an explicit `-- panel: pm,designer,devops` argument verbatim
   (architect is always included on top).
 
+**Agent names are namespaced when this plugin is installed:** dispatch
+`workflow:architect`, `workflow:product-manager`, etc., or the bare `architect` /
+`product-manager` when running project-scoped from the source repo. Use whichever form
+actually resolves — never silently fall back to `general-purpose` because a bare name
+didn't resolve.
+
 Spawn the chosen agents **in parallel (single message)**, giving each the theme, the
 product/infra context you gathered, and the open-backlog titles (to dedupe). The PM
 returns 3–6 prioritized ticket drafts; the designer works UX/states/copy/a11y for the
@@ -117,7 +123,10 @@ Report back the recorded ADRs, the created ticket ids, and the recommended picku
 ## 5. Auto-advance to `/work`
 
 Once the tickets exist (i.e. the user approved in step 4 and they've been created), the
-cycle continues automatically: **invoke `/work`** to build the ready tickets — no manual
+cycle continues automatically: **invoke the work skill** to build the ready tickets — as
+**`/workflow:work`** when this plugin is installed, or bare `/work` when running
+project-scoped from the source repo. Use whichever of those two is actually available in
+this session; **do not skip the handoff because one form isn't registered.** No manual
 re-invoke needed. The human checkpoint for this phase was the step-4 approval; building the
 approved tickets is the natural next step, and `/work` runs its own soundcheck + green-only
 merge rails, then hands to `/deploy` (which keeps its release gate). Skip the handoff only

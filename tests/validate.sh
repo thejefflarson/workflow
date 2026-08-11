@@ -117,12 +117,18 @@ done
 assert_has .claude/agents/senior-engineer.md "isolation: worktree" "isolation: worktree"
 
 # ── Layer 1d: reference convention ───────────────────────────────────
-sect "Reference convention (bare internal, namespaced external)"
-if grep -rn "workflow:" .claude/skills .claude/agents >/dev/null 2>&1; then
-  grep -rn "workflow:" .claude/skills .claude/agents; fail "stray 'workflow:' prefix in .claude/ (internal refs must be bare)"
-else
-  pass "no 'workflow:' prefixes in .claude/ (bare-name convention holds)"
-fi
+# ADR 0006: a cross-reference must name BOTH forms — the namespaced `workflow:*`
+# (how components register when the plugin is INSTALLED, the normal case) and the
+# bare name (project-scoped, in-repo dev). Naming only the bare form silently
+# breaks the auto-advance chain in every repo that isn't this one.
+sect "Reference convention (both forms named, so it resolves installed AND project-scoped)"
+assert_has .claude/skills/idea/SKILL.md "/workflow:plan-sprint" "idea: handoff names the installed form"
+assert_has .claude/skills/idea/SKILL.md "/plan-sprint" "idea: handoff names the bare form"
+assert_has .claude/skills/plan-sprint/SKILL.md "/workflow:work" "plan-sprint: handoff names the installed form"
+assert_has .claude/skills/work/SKILL.md "/workflow:deploy" "work: handoff names the installed form"
+assert_has .claude/skills/work/SKILL.md "workflow:senior-engineer" "work: agent dispatch names the installed form"
+assert_has .claude/skills/plan-sprint/SKILL.md "workflow:architect" "plan-sprint: agent dispatch names the installed form"
+assert_has .claude/skills/idea/SKILL.md "workflow:idea-architect" "idea: agent dispatch names the installed form"
 assert_has .claude/skills/work/SKILL.md "/soundcheck:security-review" "external soundcheck ref intact"
 assert_has .claude/agents/senior-engineer.md "/soundcheck:pr-review" "external soundcheck ref intact"
 

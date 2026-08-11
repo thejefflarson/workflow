@@ -34,7 +34,9 @@ questionnaire.
 
 ## 2. Spin up the deep planning architect
 
-Dispatch one **`idea-architect`** agent with the framed idea + the context you gathered.
+Dispatch one **idea-architect** agent with the framed idea + the context you gathered —
+`workflow:idea-architect` when this plugin is installed, or bare `idea-architect` when
+running project-scoped from the source repo (use whichever form resolves).
 It researches best practices and prior art (WebSearch), lays out **2–3 genuinely different
 approaches**, challenges the idea's assumptions, recommends the simplest approach that
 works, resolves the load-bearing decisions, and returns a decision-complete brief. It
@@ -60,8 +62,11 @@ brief is a durable, low-risk artifact and capturing it is the whole point. Then:
 - **Record ADRs.** Any load-bearing decision the brief settles gets an ADR in `docs/adr/`
   (match the repo's existing format/numbering; create `docs/adr/0001-<slug>.md` if the
   repo keeps none yet). Big decisions live in the repo, not just a brief.
-- **Auto-advance to `/plan-sprint`:** once the brief is settled, invoke `/plan-sprint`
-  automatically with the brief's `HANDOFF TO PLAN-SPRINT` framing as the theme — the cycle
+- **Auto-advance to plan-sprint:** once the brief is settled, invoke the **plan-sprint
+  skill** automatically — as **`/workflow:plan-sprint`** when this plugin is installed, or
+  bare `/plan-sprint` when running project-scoped from the source repo. Use whichever of
+  those two is actually available in this session; **do not skip the handoff because one
+  form isn't registered.** Pass the brief's `HANDOFF TO PLAN-SPRINT` framing as the theme — the cycle
   flows on into ticketing without a manual re-invoke. It still stops at `/plan-sprint`'s
   own approval gate before any tickets are created, so this handoff commits to nothing
   outward. Skip the handoff only if the user scoped the run to the brief alone ("just the

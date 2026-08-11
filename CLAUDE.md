@@ -46,15 +46,16 @@ use the override).
 
 ## Invariants — do not break these
 
-- **Reference own skills/agents by BARE name; keep external deps namespaced.** Inside this
-  plugin's skills and agents, refer to a sibling as `senior-engineer` / `architect` /
-  `/plan-sprint` — NOT `workflow:senior-engineer` or `/workflow:plan-sprint`. Bare names
-  resolve in *both* modes: project-scoped (in-repo dev, where agents load bare) and
-  installed (where Claude maps the bare reference to the namespaced `workflow:*`). A
-  hardcoded `workflow:` prefix breaks the in-repo dev-loop — it would resolve to the
-  installed copy instead of your working tree. **External** dependencies keep their names:
-  `/soundcheck:security-review`, `/soundcheck:pr-review`, `/simplify` (built-in). Grep for
-  stray `workflow:` after any edit — there should be none in `.claude/`.
+- **Name BOTH forms on every cross-reference** (see ADR 0006). When a skill invokes a
+  sibling skill or dispatches one of this plugin's agents, name the namespaced form *and*
+  the bare form: "`/workflow:plan-sprint` when installed, `/plan-sprint` when
+  project-scoped." **Bare-only is a bug**: when the plugin is installed (the normal case),
+  components register *only* as `workflow:*` — a bare `/plan-sprint` is not a registered
+  command, so the model has to infer the mapping and often doesn't, silently breaking the
+  auto-advance chain in every repo except this one. Namespaced-only is also wrong: it
+  breaks the in-repo dev loop by resolving to the installed copy. **External** dependencies
+  keep their own names: `/soundcheck:security-review`, `/soundcheck:pr-review`, `/simplify`
+  (built-in). `validate.sh` asserts both forms appear on each handoff and agent dispatch.
 - **Soundcheck is a hard dependency — cross-marketplace.** Declared in `plugin.json`
   `dependencies` as `{ "name": "soundcheck", "marketplace": "soundcheck" }`, permitted by
   `allowCrossMarketplaceDependenciesOn: ["soundcheck"]` in this repo's `marketplace.json`.

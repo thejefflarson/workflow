@@ -11,6 +11,12 @@ end-to-end in an isolated worktree and opens a PR; an architect then reviews and
 them all in. You (the main loop) orchestrate; this plugin's agents
 (`senior-engineer`, `architect`) do the work.
 
+**Agent names are namespaced when this plugin is installed:** dispatch
+`workflow:senior-engineer` / `workflow:architect`, or the bare `senior-engineer` /
+`architect` when running project-scoped from the source repo. Use whichever form actually
+resolves in this session — never silently fall back to `general-purpose` just because the
+bare name didn't resolve.
+
 ## Operating principle — autonomy
 
 The swarm runs **without a human in the loop**. Engineers and the architect must NOT
@@ -53,7 +59,7 @@ and write the closing keyword in the PR.)
 
 ## 3. Fan out the engineers (parallel, worktree-isolated)
 
-Spawn one **`senior-engineer`** agent per ticket **in a single message** so they
+Spawn one **senior-engineer** agent per ticket **in a single message** so they
 run concurrently. Each already carries `isolation: worktree` in its definition (they edit
 files in parallel and must not collide). Give each: the ticket id, the full body, and its
 branch name. Each implements, tests, runs the local gates, trims needless complexity it
@@ -142,7 +148,10 @@ still actively reviewing this run. This step is the fix for worktrees accumulati
 
 Merging to the default branch may deploy **nothing** (this framework assumes a repo
 ships on a **tagged merge to main** — a semver tag, not the merge itself). So after the
-report, **if any PR merged this run, invoke the `/deploy` skill** to release the
+report, **if any PR merged this run, invoke the deploy skill** — as **`/workflow:deploy`**
+when this plugin is installed, or bare `/deploy` when running project-scoped from the
+source repo (use whichever is actually available; don't skip the handoff because one form
+isn't registered) — to release the
 newly-merged work. `/deploy` detects how the repo ships, computes the next
 version, shows what will ship, and **waits for the user's explicit go before triggering
 the release** (releases are outward-facing and often irreversible). If everything was
