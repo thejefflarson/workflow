@@ -105,8 +105,13 @@ for a in $AGENTS; do
   f=".claude/agents/$a.md"; tools=$(fm_val "$f" tools)
   if [ "$a" = "senior-engineer" ]; then
     echo "$tools" | grep -q "Edit" && pass "senior-engineer has Edit/Write" || fail "senior-engineer should have Edit/Write"
+    # Agent is required: /simplify and /soundcheck:pr-review dispatch subagents and
+    # silently degrade to a single-pass manual review without it.
+    echo "$tools" | grep -q "Agent" && pass "senior-engineer has Agent (for /simplify + pr-review fan-out)" \
+      || fail "senior-engineer needs Agent — /simplify and /soundcheck:pr-review degrade without it"
   else
     echo "$tools" | grep -qE "Edit|Write" && fail "$a should NOT have Edit/Write (read-only role)" || pass "$a is read-only"
+    echo "$tools" | grep -q "Agent" && fail "$a should NOT have Agent (fan-out lives in the main loop)" || pass "$a cannot spawn subagents"
   fi
 done
 assert_has .claude/agents/senior-engineer.md "isolation: worktree" "isolation: worktree"

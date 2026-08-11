@@ -94,6 +94,11 @@ use the override).
 - Agents carry `name`, `description`, `tools`, `model`; `senior-engineer` also has
   `isolation: worktree`. The `tools:` list is the agent's allowlist — keep it tight (panel
   and idea agents are read-only + WebSearch; only the engineer gets Edit/Write).
+  **`senior-engineer` also needs `Agent`** — `/simplify` and `/soundcheck:pr-review` fan
+  out subagents, and without it they silently degrade to a single-pass manual review
+  (observed in real swarm runs). No other agent gets `Agent`: fan-out otherwise lives in
+  the main loop, which keeps the swarm one level deep and its cost legible.
+  `validate.sh` asserts both halves of that rule.
 - Panel agents (`product-manager`, `product-designer`, `devops-engineer`, `data-engineer`)
   all emit the **same ticket-draft block** so `plan-sprint` synthesis stays agent-agnostic.
   If you add a panelist: match that output format, add it to the panel rubric AND the intro
