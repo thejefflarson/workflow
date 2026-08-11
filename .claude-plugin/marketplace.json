@@ -13,7 +13,7 @@
       "source": {
         "source": "github",
         "repo": "thejefflarson/workflow",
-        "ref": "v0.2.4"
+        "ref": "v0.2.5"
       }
     }
   ]
