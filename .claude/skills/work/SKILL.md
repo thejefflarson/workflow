@@ -1,6 +1,6 @@
 ---
 name: work
-description: Autonomous build swarm. Pulls ready and backlog tickets from this repo's issue tracker (skipping only in-progress/done and unmet-dependency ones), spins up a senior-engineer agent per ticket (each implementing in its own isolated git worktree — code + tests + PR), then an architect that reviews and merges them all in. Use when the user says "/work", "grab some tickets and ship them", "work the backlog", or wants the queue drained autonomously.
+description: Autonomous build swarm. Pulls ready and backlog tickets from this repo's issue tracker (skipping in-progress/done, and deferring only tickets whose blocker isn't in this run — an in-run dependency becomes a stacked PR instead), spins up a senior-engineer agent per ticket (each implementing in its own isolated git worktree — code + tests + PR), then an architect that reviews and merges them all in. Use when the user says "/work", "grab some tickets and ship them", "work the backlog", or wants the queue drained autonomously.
 argument-hint: "[ticket ids e.g. JEF-12,JEF-15  |  a count e.g. 3  |  blank = top of the ready queue]"
 ---
 
@@ -43,12 +43,18 @@ the resolved project. A ready/`Todo` status is *preferred* but **not required**:
 backlog/untriaged issue counts, so `/work` drains more than just what was explicitly
 marked ready. Order by priority (Urgent → High → Medium → Low), and within a priority
 prefer ready-status over backlog. **Skip:** anything already In Progress / In Review /
-Done; pure-spec tickets with no code to write (note them); and — the load-bearing one —
-any ticket with an **unmet `blocked-by` dependency** (a blocker not yet merged/closed).
-Those wait for a later run; pulling the backlog must not mean building something whose
-prerequisites don't exist yet. For each picked ticket fetch the **full** body (acceptance
-criteria + branch name) to hand to its engineer. List the selected tickets (id · title ·
-priority · ready|backlog) one line each, then proceed (no approval prompt).
+Done; and pure-spec tickets with no code to write (note them).
+
+**Dependencies — stack them, don't always defer.** A ticket with a `blocked-by` dependency
+is no longer skipped outright:
+- If its blocker is **also selected in this run**, keep both and build them as a **stacked
+  PR** chain (step 3) — the dependent branches off its blocker instead of the default branch.
+- If its blocker is **not in this run** (still open and unmerged elsewhere), skip it — it
+  waits for a later run. Building on prerequisites that don't exist is the thing to avoid.
+
+For each picked ticket fetch the **full** body (acceptance criteria + branch name) to hand
+to its engineer. List the selected tickets (id · title · priority · ready|backlog) one line
+each — marking any stack as `blocker → dependent` — then proceed (no approval prompt).
 
 ## 2. Mark them In Progress
 
@@ -57,13 +63,40 @@ reflects the swarm. (PR-open → In Review and merge → Done are typically hand
 automatically by the tracker↔GitHub link, if engineers commit on the ticket's branch
 and write the closing keyword in the PR.)
 
-## 3. Fan out the engineers (parallel, worktree-isolated)
+## 3. Fan out the engineers (parallel lanes, worktree-isolated)
 
-Spawn one **senior-engineer** agent per ticket **in a single message** so they
-run concurrently. Each already carries `isolation: worktree` in its definition (they edit
-files in parallel and must not collide). Give each: the ticket id, the full body, and its
-branch name. Each implements, tests, runs the local gates, trims needless complexity it
-introduced (in scope only — via the built-in `/simplify` skill, else by hand),
+**First group the selected tickets into lanes.** A *lane* is one independent chain:
+tickets with no `blocked-by` relationship between them go in separate lanes; a ticket and
+its in-run blocker share a lane, ordered blocker-first. Most runs are all singleton lanes
+— that's the common case, and it behaves exactly as it always has.
+
+- **Lanes run in parallel** — spawn one senior-engineer per lane **in a single message**.
+- **Within a lane, tickets run in sequence.** A stacked PR needs its parent's branch to
+  exist and be pushed first, so a chain cannot be fanned out: dispatch the lane's first
+  ticket, wait for its result, then dispatch the next one, passing it the parent's branch
+  name as its stack base.
+
+### Stacked PRs — only when a lane holds more than one ticket
+
+When a ticket's blocker is in this same run, build the dependent as a **stacked pull
+request**: cut its branch from the blocker's branch, and target its PR at that branch
+rather than the default branch. Tell the dependent's engineer, explicitly:
+
+- **Branch off** `<blocker-branch>`, not the default branch.
+- **Open the PR against it**: `gh pr create --base <blocker-branch> …`. That's plain `gh`
+  — no extension required. (GitHub's `gh stack` extension exists but is **not** installed
+  by default; don't depend on it.)
+
+Constraints worth knowing: every branch in a stack must live in the **same repository**
+(cross-fork stacks are unsupported), and a stack is only worth creating for a genuine
+dependency — independent tickets stay independent PRs off the default branch, because
+those parallelize and a stack does not.
+
+Each engineer already carries `isolation: worktree` in its definition (they edit files in
+parallel and must not collide). Give each: the ticket id, the full body, its branch name,
+and — for a stacked ticket — the stack base branch to cut from and target. Each
+implements, tests, runs the local gates, trims needless complexity it introduced
+(in scope only — via the built-in `/simplify` skill, else by hand),
 pushes its branch, and opens a PR — returning a structured result (branch, PR#, status,
 tests, scope/risks, any `DECISION NEEDED`).
 
@@ -115,6 +148,16 @@ by dependency, and merges each qualifying PR — **normal `gh pr merge --squash`
 real red required check, or an unsafe conflict are held open with a posted review. The
 architect never autonomously modifies a *separate* prod/infra repo — it flags those as
 human follow-ups.
+
+**Stacked PRs merge bottom-up.** If this run produced a stack, merge the bottom PR first
+and work upward; GitHub **auto-retargets** each PR above onto the base as the one below
+merges, so the stack re-points itself without manual surgery. Merging the *top* PR would
+bring every PR beneath it along in one shot — merge each one deliberately instead, so
+every PR keeps its own review and its own green check. The gotcha: the merge path is
+`--squash`, which rewrites the base's history, so an upper PR can show a conflict or
+duplicated commits once its parent lands — rebase it onto the new base and re-check before
+merging (the architect already does this for any PR that stops merging cleanly). **Never
+merge a stacked PR while its parent is still open.**
 
 ## 5. Report
 

@@ -155,6 +155,9 @@ assert_has "$wk" "--show-toplevel" "work: worktree hardening line"
 assert_has "$wk" "general-purpose" "work: stale-persona fallback"
 assert_has "$wk" "/deploy" "work: auto-advances to /deploy"
 assert_has "$wk" "git worktree remove" "work: prunes worktrees to reclaim disk"
+assert_has "$wk" "gh pr create --base" "work: stacked-PR base flag"
+assert_has "$wk" "bottom-up" "work: stacked PRs merge bottom-up"
+assert_has "$se" "stack base branch" "engineer: honors a stack base branch"
 
 # plan-sprint: tracker fallbacks, ADRs, all panelists named
 ps=.claude/skills/plan-sprint/SKILL.md

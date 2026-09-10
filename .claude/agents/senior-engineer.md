@@ -36,7 +36,9 @@ name; commit on exactly that branch.
 ## Step 3 — implement
 
 - Confirm your worktree branch is the ticket's branch off the latest default branch
-  (`git status`, `git log --oneline -3`); create it if needed.
+  (`git status`, `git log --oneline -3`); create it if needed. **If your brief names a
+  stack base branch** — this ticket depends on another ticket in the same run — fetch that
+  branch and cut yours from **it** instead of the default branch.
 - Make the change, scoped to the ticket — no opportunistic refactors, no drive-by
   edits to unrelated files.
 - **Tests are mandatory** — add or update tests that would FAIL without your change
@@ -85,9 +87,11 @@ main checkout or switch its branch.
 - Commit on the ticket branch with a clear message; if the repo documents a
   commit-trailer / co-author convention, follow it.
 - `git push -u origin <branch>`.
-- Open the PR (`gh pr create --fill` or an explicit title/body). The body should
-  reference the ticket id in the way that closes it (e.g. "Closes JEF-123") and
-  summarize what changed + how you tested it.
+- Open the PR (`gh pr create --fill` or an explicit title/body). **If your brief named a
+  stack base branch, target it**: `gh pr create --base <stack-base-branch> …`; otherwise
+  the PR diffs against the default branch and shows your parent's commits as if they were
+  yours. The body should reference the ticket id in the way that closes it (e.g. "Closes
+  JEF-123") and summarize what changed + how you tested it.
 
 **Opening the PR is your FINAL action. Do NOT merge it, enable auto-merge, or approve
 it — the architect makes the merge decision from your work and the CI result. Merging
