@@ -92,14 +92,20 @@ use the override).
 - Skills carry `name`, `description`, `argument-hint` frontmatter. The `description` is
   what Claude matches on to auto-invoke — keep the trigger phrases accurate. Use the bare
   `/name` form in trigger phrases (matches project-scope and soundcheck's convention).
-- Agents carry `name`, `description`, `tools`, `model`; `senior-engineer` also has
-  `isolation: worktree`. The `tools:` list is the agent's allowlist — keep it tight (panel
-  and idea agents are read-only + WebSearch; only the engineer gets Edit/Write).
-  **`senior-engineer` also needs `Agent`** — `/simplify` and `/soundcheck:pr-review` fan
-  out subagents, and without it they silently degrade to a single-pass manual review
-  (observed in real swarm runs). No other agent gets `Agent`: fan-out otherwise lives in
-  the main loop, which keeps the swarm one level deep and its cost legible.
-  `validate.sh` asserts both halves of that rule.
+- Agents carry `name`, `description`, `model`; `senior-engineer` also has
+  `isolation: worktree`. The six non-implementer agents carry a tight `tools:`
+  allowlist — read-only + `WebSearch`, no `Edit`/`Write`, no `Agent` (fan-out lives in
+  the main loop, which keeps the swarm one level deep and its cost legible).
+  **`senior-engineer` deliberately OMITS `tools:`**, which makes it inherit everything:
+  the built-ins it needs to write code, `Agent` (without it `/simplify` and
+  `/soundcheck:pr-review` silently degrade to a single-pass manual review — observed in
+  real swarm runs), **and the user's MCP servers** — the tracker MCP it reads full ticket
+  bodies from. An allowlist can't express that: `tools:` takes only concrete
+  `mcp__<server>` names, and naming one would hard-code someone's tracker into a
+  repo-agnostic agent (`mcp__*` is valid only in `disallowedTools`). This is not a
+  privilege jump — the engineer already had `Bash`, which is strictly more powerful than
+  any MCP tool. `validate.sh` asserts both halves: the engineer has no `tools:` line, and
+  the other six stay read-only and subagent-less.
 - Panel agents (`product-manager`, `product-designer`, `devops-engineer`, `data-engineer`)
   all emit the **same ticket-draft block** so `plan-sprint` synthesis stays agent-agnostic.
   If you add a panelist: match that output format, add it to the panel rubric AND the intro

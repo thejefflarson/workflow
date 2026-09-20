@@ -96,23 +96,26 @@ for a in $AGENTS; do
   f=".claude/agents/$a.md"
   [ "$(fm_val "$f" name)" = "$a" ] && pass "$a: name matches file" || fail "$a: frontmatter name != file"
   [ -n "$(fm_val "$f" description)" ] && pass "$a: has description" || fail "$a: missing description"
-  [ -n "$(fm_val "$f" tools)" ] && pass "$a: has tools" || fail "$a: missing tools"
+  if [ "$a" = "senior-engineer" ]; then
+    # Deliberately no allowlist: inherits built-ins AND the user's MCP servers.
+    # Repo-agnostic — we can't name their tracker's server, and `tools:` has no
+    # wildcard granting all MCP (`mcp__*` works only in disallowedTools).
+    [ -z "$(fm_val "$f" tools)" ] && pass "$a: omits tools (inherits built-ins + MCP)" \
+      || fail "$a: must OMIT tools so it inherits MCP"
+  else
+    [ -n "$(fm_val "$f" tools)" ] && pass "$a: has tools" || fail "$a: missing tools"
+  fi
   want=$(expected_model "$a"); got=$(fm_val "$f" model)
   [ "$got" = "$want" ] && pass "$a: model=$got" || fail "$a: model is '$got', expected '$want'"
 done
-# tool allowlists: only senior-engineer may write
+# tool allowlists: the six non-implementer agents stay read-only and cannot spawn
+# subagents. senior-engineer is exempt — it omits `tools:` (asserted above) and so
+# inherits write access, Agent (for /simplify + /soundcheck:pr-review fan-out), and MCP.
 for a in $AGENTS; do
+  [ "$a" = "senior-engineer" ] && continue
   f=".claude/agents/$a.md"; tools=$(fm_val "$f" tools)
-  if [ "$a" = "senior-engineer" ]; then
-    echo "$tools" | grep -q "Edit" && pass "senior-engineer has Edit/Write" || fail "senior-engineer should have Edit/Write"
-    # Agent is required: /simplify and /soundcheck:pr-review dispatch subagents and
-    # silently degrade to a single-pass manual review without it.
-    echo "$tools" | grep -q "Agent" && pass "senior-engineer has Agent (for /simplify + pr-review fan-out)" \
-      || fail "senior-engineer needs Agent — /simplify and /soundcheck:pr-review degrade without it"
-  else
-    echo "$tools" | grep -qE "Edit|Write" && fail "$a should NOT have Edit/Write (read-only role)" || pass "$a is read-only"
-    echo "$tools" | grep -q "Agent" && fail "$a should NOT have Agent (fan-out lives in the main loop)" || pass "$a cannot spawn subagents"
-  fi
+  echo "$tools" | grep -qE "Edit|Write" && fail "$a should NOT have Edit/Write (read-only role)" || pass "$a is read-only"
+  echo "$tools" | grep -q "Agent" && fail "$a should NOT have Agent (fan-out lives in the main loop)" || pass "$a cannot spawn subagents"
 done
 assert_has .claude/agents/senior-engineer.md "isolation: worktree" "isolation: worktree"
 
