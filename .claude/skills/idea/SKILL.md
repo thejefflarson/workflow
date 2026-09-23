@@ -1,6 +1,6 @@
 ---
 name: idea
-description: Turn a rough idea into a decision-complete design brief before it becomes a sprint. Spins up a deep planning architect (on fable) that researches best practices, compares real approaches, challenges the idea's assumptions, and recommends the simplest thing that works — then hands the brief off to /plan-sprint for ticketing. Use when the user says "/idea", "I have an idea", "think this through", "help me scope this out", or wants a solid plan before committing to build.
+description: Turn a rough idea into a decision-complete design brief before it becomes a sprint. Spins up a deep planning architect (on opus) that researches best practices, compares real approaches, challenges the idea's assumptions, and recommends the simplest thing that works — then hands the brief off to /plan-sprint for ticketing. Use when the user says "/idea", "I have an idea", "think this through", "help me scope this out", or wants a solid plan before committing to build.
 argument-hint: "[your idea / rough concept]"
 ---
 
@@ -9,7 +9,7 @@ argument-hint: "[your idea / rough concept]"
 This is the front of the loop. Before work gets scoped into a sprint, one idea gets
 *thought all the way through*: researched, stress-tested, and reduced to the simplest
 shape that actually solves the problem. You (the main loop) frame the idea and own the
-write-down; the `idea-architect` agent (deep planning, on fable) does the thinking. The
+write-down; the `idea-architect` agent (deep planning, on opus) does the thinking. The
 output is a brief solid enough that `/plan-sprint` can scope it without re-deciding
 anything load-bearing.
 

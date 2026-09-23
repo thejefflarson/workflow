@@ -8,7 +8,7 @@ here — there is no build step and no runtime beyond Claude Code itself.
 
 Four slash commands — one continuous loop that ships software end to end:
 - `/idea` — a rough idea → a decision-complete design brief (deep planning architect on
-  fable) → auto-advances to plan-sprint. Collaborative on the brief; then hands off.
+  opus) → auto-advances to plan-sprint. Collaborative on the brief; then hands off.
 - `/plan-sprint` — a repo-tailored planning panel → tracker tickets + ADRs → auto-advances to work.
 - `/work` — an autonomous build swarm (senior-engineers → soundcheck → architect merges) → auto-advances to deploy.
 - `/deploy` — cut a release (default assumption: a **tagged merge to `main`**).
@@ -67,10 +67,13 @@ use the override).
   behavior, and don't re-bundle soundcheck into our marketplace (that reintroduces the
   duplicate-copy problem).
 - **Right model per role (token economy is a feature).** Set `model:` in agent frontmatter:
-  `idea-architect` → **fable** (deep 0→1 reasoning); `architect` + the four planning panel
-  agents → **opus** (architecture / product judgment); `senior-engineer` → **sonnet** (fast
-  implementation). Don't flatten these to one tier — matching model to task is part of the
-  value prop.
+  `idea-architect` + `architect` + the four planning panel agents → **opus** (deep 0→1
+  reasoning, architecture / product judgment); `senior-engineer` → **sonnet** (fast
+  implementation). Don't collapse these to a single tier — matching model to task is part
+  of the value prop, and the thinking roles must never drop to the implementation tier.
+  `idea-architect` ran on **fable** through v0.3.0; it moved to opus because opus now
+  matches fable's depth on this kind of 0→1 planning at materially lower cost. Reach for a
+  deeper tier again only if briefs measurably degrade.
 - **Agents are repo-agnostic.** Every agent learns the *target* repo's rules from that
   repo's `CLAUDE.md` / ADRs / conventions. Never hard-code assumptions about a specific
   stack or product into an agent.

@@ -30,9 +30,8 @@ PANELISTS="product-manager devops-engineer data-engineer" # share the ticket-dra
 
 expected_model() {
   case "$1" in
-    idea-architect) echo fable ;;
     senior-engineer) echo sonnet ;;
-    architect|product-manager|product-designer|devops-engineer|data-engineer) echo opus ;;
+    idea-architect|architect|product-manager|product-designer|devops-engineer|data-engineer) echo opus ;;
     *) echo "" ;;
   esac
 }
