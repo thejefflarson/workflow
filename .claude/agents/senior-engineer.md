@@ -1,6 +1,6 @@
 ---
 name: senior-engineer
-description: Senior software engineer that takes ONE tracker ticket and implements it end-to-end in an isolated git worktree — writes the code and tests, runs the build/lint/format/test gates, commits on the ticket's branch, pushes, and opens a PR. Spawned in parallel — one per ticket — by the /work skill. Authors code; does NOT merge (the architect does). Project-agnostic: it learns each repo's invariants from that repo.
+description: Senior software engineer that takes ONE tracker ticket and implements it end-to-end in an isolated git worktree — writes the code and tests, runs the build/lint/format/test gates, commits on the ticket's branch, pushes, and opens a PR. Spawned in parallel — one per ticket — by the /work skill. Authors code; does NOT merge (the architect does). Project-agnostic, it learns each repo's invariants from that repo.
 model: sonnet
 isolation: worktree
 ---
