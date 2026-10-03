@@ -96,19 +96,28 @@ use the override).
   what Claude matches on to auto-invoke — keep the trigger phrases accurate. Use the bare
   `/name` form in trigger phrases (matches project-scope and soundcheck's convention).
 - Agents carry `name`, `description`, `model`; `senior-engineer` also has
-  `isolation: worktree`. The six non-implementer agents carry a tight `tools:`
-  allowlist — read-only + `WebSearch`, no `Edit`/`Write`, no `Agent` (fan-out lives in
-  the main loop, which keeps the swarm one level deep and its cost legible).
-  **`senior-engineer` deliberately OMITS `tools:`**, which makes it inherit everything:
-  the built-ins it needs to write code, `Agent` (without it `/simplify` and
-  `/soundcheck:pr-review` silently degrade to a single-pass manual review — observed in
-  real swarm runs), **and the user's MCP servers** — the tracker MCP it reads full ticket
-  bodies from. An allowlist can't express that: `tools:` takes only concrete
-  `mcp__<server>` names, and naming one would hard-code someone's tracker into a
-  repo-agnostic agent (`mcp__*` is valid only in `disallowedTools`). This is not a
-  privilege jump — the engineer already had `Bash`, which is strictly more powerful than
-  any MCP tool. `validate.sh` asserts both halves: the engineer has no `tools:` line, and
-  the other six stay read-only and subagent-less.
+  `isolation: worktree`. **Tool access splits two ways.** The five panel/idea agents
+  (`idea-architect`, `product-manager`, `product-designer`, `devops-engineer`,
+  `data-engineer`) keep a tight `tools:` allowlist — read-only + `WebSearch`, no
+  `Edit`/`Write`, no `Agent`. **`senior-engineer` and `architect` OMIT `tools:`
+  deliberately**, which inherits everything, including **the user's MCP servers**: the
+  tracker MCP the engineer reads full ticket bodies from, and that the architect records
+  a held PR's follow-up ticket in. An allowlist cannot express that — `tools:` takes only
+  concrete `mcp__<server>` names, and naming one would hard-code someone's tracker into a
+  repo-agnostic agent (`mcp__*` is valid only in a deny list). Neither is a real privilege
+  jump: both already carried `Bash`, which subsumes `Edit`/`Write` (the architect wrote
+  ADRs and fixed mechanical conflicts through it) and is strictly more powerful than any
+  MCP tool.
+- **Fan-out stays one level deep**, which is what keeps the swarm's cost legible. Only
+  `senior-engineer` may spawn subagents, because `/simplify` and `/soundcheck:pr-review`
+  fan out and silently degrade to a single-pass manual review without `Agent` (observed in
+  real swarm runs). For an agent with an allowlist, leaving `Agent` out of it is the
+  enforcement. For the two that inherit, enforcement takes a **deny**: `architect` carries
+  `disallowedTools: Agent`, which agent frontmatter honors by subtracting from the
+  inherited set. An opus architect spawning opus subagents is the expensive case, so this
+  one is load-bearing. `validate.sh` asserts every part: the two inheritors have no
+  `tools:` line, the five keep read-only allowlists, the architect denies `Agent`, and the
+  engineer does not.
 - Panel agents (`product-manager`, `product-designer`, `devops-engineer`, `data-engineer`)
   all emit the **same ticket-draft block** so `plan-sprint` synthesis stays agent-agnostic.
   If you add a panelist: match that output format, add it to the panel rubric AND the intro

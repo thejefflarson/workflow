@@ -95,27 +95,41 @@ for a in $AGENTS; do
   f=".claude/agents/$a.md"
   [ "$(fm_val "$f" name)" = "$a" ] && pass "$a: name matches file" || fail "$a: frontmatter name != file"
   [ -n "$(fm_val "$f" description)" ] && pass "$a: has description" || fail "$a: missing description"
-  if [ "$a" = "senior-engineer" ]; then
-    # Deliberately no allowlist: inherits built-ins AND the user's MCP servers.
-    # Repo-agnostic — we can't name their tracker's server, and `tools:` has no
-    # wildcard granting all MCP (`mcp__*` works only in disallowedTools).
-    [ -z "$(fm_val "$f" tools)" ] && pass "$a: omits tools (inherits built-ins + MCP)" \
-      || fail "$a: must OMIT tools so it inherits MCP"
-  else
-    [ -n "$(fm_val "$f" tools)" ] && pass "$a: has tools" || fail "$a: missing tools"
-  fi
+  case "$a" in
+    senior-engineer|architect)
+      # Deliberately no allowlist: inherits built-ins AND the user's MCP servers.
+      # Repo-agnostic — we can't name their tracker's server, and `tools:` has no
+      # wildcard granting all MCP (`mcp__*` works only in disallowedTools).
+      [ -z "$(fm_val "$f" tools)" ] && pass "$a: omits tools (inherits built-ins + MCP)" \
+        || fail "$a: must OMIT tools so it inherits MCP"
+      ;;
+    *)
+      [ -n "$(fm_val "$f" tools)" ] && pass "$a: has tools" || fail "$a: missing tools"
+      ;;
+  esac
   want=$(expected_model "$a"); got=$(fm_val "$f" model)
   [ "$got" = "$want" ] && pass "$a: model=$got" || fail "$a: model is '$got', expected '$want'"
 done
-# tool allowlists: the six non-implementer agents stay read-only and cannot spawn
-# subagents. senior-engineer is exempt — it omits `tools:` (asserted above) and so
-# inherits write access, Agent (for /simplify + /soundcheck:pr-review fan-out), and MCP.
+# Tool access splits two ways. The five panel/idea agents keep a tight allowlist:
+# read-only, no Agent. senior-engineer and architect omit `tools:` to inherit MCP, so
+# for them the one-level-deep rule is enforced by a DENY, not by omission —
+# `disallowedTools` is honored in agent frontmatter and subtracts from the inherited set.
 for a in $AGENTS; do
-  [ "$a" = "senior-engineer" ] && continue
+  case "$a" in senior-engineer|architect) continue ;; esac
   f=".claude/agents/$a.md"; tools=$(fm_val "$f" tools)
   echo "$tools" | grep -qE "Edit|Write" && fail "$a should NOT have Edit/Write (read-only role)" || pass "$a is read-only"
   echo "$tools" | grep -q "Agent" && fail "$a should NOT have Agent (fan-out lives in the main loop)" || pass "$a cannot spawn subagents"
 done
+# The architect merges and writes ADRs but must not fan out: an opus agent spawning opus
+# agents is the expensive case, and the swarm's cost stays legible only one level deep.
+echo "$(fm_val .claude/agents/architect.md disallowedTools)" | grep -q "Agent" \
+  && pass "architect denies Agent (fan-out stays in the main loop)" \
+  || fail "architect must set disallowedTools: Agent — it inherits tools, so omission grants it"
+# The engineer is the one agent that MUST keep Agent: /simplify and /soundcheck:pr-review
+# fan out subagents and silently degrade to a single-pass manual review without it.
+echo "$(fm_val .claude/agents/senior-engineer.md disallowedTools)" | grep -q "Agent" \
+  && fail "senior-engineer must NOT deny Agent — /simplify and /soundcheck:pr-review need it" \
+  || pass "senior-engineer keeps Agent (for /simplify + pr-review fan-out)"
 assert_has .claude/agents/senior-engineer.md "isolation: worktree" "isolation: worktree"
 
 # ── Layer 1d: reference convention ───────────────────────────────────
