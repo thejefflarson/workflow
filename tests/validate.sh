@@ -120,16 +120,14 @@ for a in $AGENTS; do
   echo "$tools" | grep -qE "Edit|Write" && fail "$a should NOT have Edit/Write (read-only role)" || pass "$a is read-only"
   echo "$tools" | grep -q "Agent" && fail "$a should NOT have Agent (fan-out lives in the main loop)" || pass "$a cannot spawn subagents"
 done
-# The architect merges and writes ADRs but must not fan out: an opus agent spawning opus
-# agents is the expensive case, and the swarm's cost stays legible only one level deep.
-echo "$(fm_val .claude/agents/architect.md disallowedTools)" | grep -q "Agent" \
-  && pass "architect denies Agent (fan-out stays in the main loop)" \
-  || fail "architect must set disallowedTools: Agent — it inherits tools, so omission grants it"
-# The engineer is the one agent that MUST keep Agent: /simplify and /soundcheck:pr-review
-# fan out subagents and silently degrade to a single-pass manual review without it.
-echo "$(fm_val .claude/agents/senior-engineer.md disallowedTools)" | grep -q "Agent" \
-  && fail "senior-engineer must NOT deny Agent — /simplify and /soundcheck:pr-review need it" \
-  || pass "senior-engineer keeps Agent (for /simplify + pr-review fan-out)"
+# Neither inheritor may be re-caged with a deny. A skill that wants to fan out and finds
+# no Agent does not error — it quietly collapses to a single-pass manual review, which is
+# how /simplify and /soundcheck:pr-review shipped degraded for two releases.
+for a in senior-engineer architect; do
+  echo "$(fm_val ".claude/agents/$a.md" disallowedTools)" | grep -q "Agent" \
+    && fail "$a must NOT deny Agent — a fan-out skill degrades silently without it" \
+    || pass "$a keeps Agent (fan-out skills work)"
+done
 assert_has .claude/agents/senior-engineer.md "isolation: worktree" "isolation: worktree"
 
 # ── Layer 1d: reference convention ───────────────────────────────────

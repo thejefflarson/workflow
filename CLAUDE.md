@@ -108,16 +108,14 @@ use the override).
   jump: both already carried `Bash`, which subsumes `Edit`/`Write` (the architect wrote
   ADRs and fixed mechanical conflicts through it) and is strictly more powerful than any
   MCP tool.
-- **Fan-out stays one level deep**, which is what keeps the swarm's cost legible. Only
-  `senior-engineer` may spawn subagents, because `/simplify` and `/soundcheck:pr-review`
-  fan out and silently degrade to a single-pass manual review without `Agent` (observed in
-  real swarm runs). For an agent with an allowlist, leaving `Agent` out of it is the
-  enforcement. For the two that inherit, enforcement takes a **deny**: `architect` carries
-  `disallowedTools: Agent`, which agent frontmatter honors by subtracting from the
-  inherited set. An opus architect spawning opus subagents is the expensive case, so this
-  one is load-bearing. `validate.sh` asserts every part: the two inheritors have no
-  `tools:` line, the five keep read-only allowlists, the architect denies `Agent`, and the
-  engineer does not.
+- **The two autonomous actors may fan out; the five advisory agents may not.** A skill
+  that wants subagents and finds no `Agent` does not error — it quietly collapses to a
+  single-pass manual review, which is how `/simplify` and `/soundcheck:pr-review` shipped
+  degraded for two releases before anyone noticed. So **never re-cage an inheritor with
+  `disallowedTools: Agent`**; `validate.sh` fails on it for both. The five advisory agents
+  only draft and assess, so their allowlists leave `Agent` out and that is enough. What
+  keeps cost legible is the swarm cap (3 by default) and the model tiers, **not** a limit
+  on depth — the swarm has been two levels deep since the engineer got `Agent` in v0.2.5.
 - Panel agents (`product-manager`, `product-designer`, `devops-engineer`, `data-engineer`)
   all emit the **same ticket-draft block** so `plan-sprint` synthesis stays agent-agnostic.
   If you add a panelist: match that output format, add it to the panel rubric AND the intro
